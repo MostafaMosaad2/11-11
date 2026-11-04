@@ -559,9 +559,18 @@ main {
   margin-top: 1.25rem;
 }
 
-.chat-note {
+.chat-line {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.chat-day {
+  align-self: center;
+  margin: 0.35rem 0 0.15rem;
   color: var(--gold);
-  font-size: 0.92rem;
+  font-size: 0.82rem;
+  font-weight: 600;
 }
 
 .chat-window {

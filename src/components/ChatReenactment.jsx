@@ -89,12 +89,14 @@ export default function ChatReenactment() {
 
   return (
     <div className="chat" ref={rootRef}>
-      <p className="chat-note">{story.chat.disclaimer}</p>
       <div className={`chat-window${showTyping ? " is-typing" : ""}`} role="log" aria-live="polite" aria-relevant="additions">
         {story.chat.messages.slice(0, visibleCount).map((message, index) => (
-          <div key={`line-${index}`} className={`msg msg-${message.from}`}>
-            <span className="sender">{message.from === "me" ? story.chat.me : story.chat.her}</span>
-            <p className="bubble">{message.text}</p>
+          <div key={`line-${index}`} className="chat-line">
+            {message.day ? <p className="chat-day">{message.day}</p> : null}
+            <div className={`msg msg-${message.from}`}>
+              <span className="sender">{message.from === "me" ? story.chat.me : story.chat.her}</span>
+              <p className="bubble">{message.text}</p>
+            </div>
           </div>
         ))}
         {showTyping ? (
