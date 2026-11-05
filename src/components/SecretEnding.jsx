@@ -1,18 +1,8 @@
 import { useEffect, useState } from "react";
 import { story } from "../data/story";
 
-function heartPoint(t) {
-  const x = 16 * Math.sin(t) ** 3;
-  const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
-  return [100 + x * 4.15, 112 - y * 4.15];
-}
-
-const HEART = Array.from({ length: 11 }, (_, index) => {
-  const [x, y] = heartPoint((index / 11) * Math.PI * 2);
-  return { x, y };
-});
-
 function EndingSky({ phase, memories }) {
+  if (phase === "reveal") return null;
   return (
     <div className="ending-sky" aria-hidden="true">
       {phase === "travel" ? (
@@ -23,22 +13,7 @@ function EndingSky({ phase, memories }) {
         </div>
       ) : null}
       {phase === "wait" || phase === "hold" || phase === "ask" ? <span className="ending-spark" /> : null}
-      {phase === "reveal" ? (
-        <div className="ending-constellation">
-          <svg className="ending-heart" viewBox="0 0 200 210">
-            <polyline
-              pathLength="1"
-              points={HEART.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ")}
-              fill="none"
-            />
-            {HEART.map((point, index) => (
-              <circle key={index} cx={point.x} cy={point.y} r="2.3" style={{ animationDelay: `${index * 0.08}s` }} />
-            ))}
-          </svg>
-          <p className="ending-name">{story.recipient}</p>
-        </div>
-      ) : null}
-      {phase === "travel" || phase === "reveal" ? (
+      {phase === "travel" ? (
         <ul className="ending-memories">
           {memories.map((item) => (
             <li key={item.id}>{item.short || item.title}</li>
@@ -94,11 +69,20 @@ export default function SecretEnding({ visited, onRestart, onGalaxy, reduced }) 
         ) : null}
         {phase === "reveal" ? (
           <>
+            <div className="ending-ring">
+              {Array.from({ length: 11 }, (_, index) => (
+                <i key={index} style={{ "--i": index }} />
+              ))}
+              <div className="ending-date">
+                <p className="ending-mark numeral" dir="ltr">
+                  {story.ending.mark}
+                </p>
+                <p className="ending-year numeral" dir="ltr">
+                  {story.ending.year}
+                </p>
+              </div>
+            </div>
             <p className="prose is-center ending-final">{story.ending.final}</p>
-            <p className="ending-mark numeral" dir="ltr">
-              {story.ending.mark}
-            </p>
-            <p className="ending-dedication">{story.ending.dedication}</p>
             <div className="chapter-nav">
               <button type="button" className="btn btn-solid" onClick={onRestart}>
                 {story.ending.again}

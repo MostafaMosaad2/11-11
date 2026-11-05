@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { story } from "../data/story";
+import DateMark from "./DateMark";
 import Starfield from "./Starfield";
 
 const fade = {
@@ -16,6 +17,7 @@ export default function OpeningScene({ onStart, onEngage, reduced }) {
   const [rush, setRush] = useState(false);
   const timer = useRef(0);
   const leaving = useRef(false);
+  const copy = story.opening;
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
@@ -31,47 +33,36 @@ export default function OpeningScene({ onStart, onEngage, reduced }) {
     timer.current = window.setTimeout(() => onStart?.({ immediate: false }), 1250);
   }
 
-  function skip() {
-    if (leaving.current && reduced) return;
-    leaving.current = true;
-    window.clearTimeout(timer.current);
-    onEngage?.();
-    onStart?.({ immediate: true });
-  }
-
   return (
     <section className="scene opening" id="opening" aria-labelledby="opening-title">
       <Starfield rush={rush} reduced={reduced} />
       <div className="eclipse" aria-hidden="true" />
       <div className={`opening-inner${rush ? " is-leaving" : ""}`}>
-        <motion.p className="eyebrow numeral" dir="ltr" initial="hidden" animate="show" variants={fade} custom={0.15}>
-          11 / 11
-        </motion.p>
-        <motion.h1
-          id="opening-title"
-          className="clock-hero"
-          dir="ltr"
-          tabIndex={-1}
+        <DateMark reduced={reduced} size="hero" />
+        <motion.p
+          className="opening-subtitle"
           initial="hidden"
           animate="show"
           variants={fade}
-          custom={0.3}
-          aria-label={story.opening.clockLabel}
+          custom={reduced ? 0 : 1.85}
         >
-          11:11
-        </motion.h1>
-        <motion.p className="opening-message" initial="hidden" animate="show" variants={fade} custom={0.55}>
-          {story.opening.message}
+          {copy.subtitle}
         </motion.p>
-        <motion.div className="opening-actions" initial="hidden" animate="show" variants={fade} custom={0.8}>
+        <motion.p className="opening-fulldate" initial="hidden" animate="show" variants={fade} custom={reduced ? 0 : 2.05}>
+          {copy.fullDate}
+        </motion.p>
+        <motion.h1 id="opening-title" className="sr-only" tabIndex={-1}>
+          {copy.dateLabel}
+        </motion.h1>
+        <motion.p className="opening-message" initial="hidden" animate="show" variants={fade} custom={reduced ? 0 : 2.35}>
+          {copy.message}
+        </motion.p>
+        <motion.div className="opening-actions" initial="hidden" animate="show" variants={fade} custom={reduced ? 0 : 2.9}>
           <button type="button" className="btn btn-solid" onClick={begin} disabled={rush}>
-            {story.opening.cta}
+            {copy.cta}
           </button>
         </motion.div>
       </div>
-      <button type="button" className="btn-text opening-skip" onClick={skip}>
-        {story.ui.skipIntro}
-      </button>
     </section>
   );
 }

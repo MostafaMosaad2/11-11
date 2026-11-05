@@ -32,10 +32,12 @@ export default function AudioController() {
 
   if (!hasAmbient() || status.phase === "idle" || status.phase === "missing") return null;
 
-  const soundOn = status.phase === "playing";
+  const suspended = status.phase === "suspended";
+  const soundOn = status.phase === "playing" || suspended;
   let label = story.audio.unmute;
-  if (soundOn) label = story.audio.mute;
-  if (status.phase === "blocked") label = story.audio.play;
+  if (suspended) label = story.audio.hold;
+  else if (soundOn) label = story.audio.mute;
+  else if (status.phase === "blocked") label = story.audio.play;
 
   function toggle() {
     if (!soundOn) {
@@ -51,7 +53,14 @@ export default function AudioController() {
 
   return (
     <div className="audio-dock">
-      <button type="button" className="audio-btn" onClick={toggle} aria-pressed={soundOn} aria-label={label}>
+      <button
+        type="button"
+        className="audio-btn"
+        onClick={toggle}
+        disabled={suspended}
+        aria-pressed={soundOn}
+        aria-label={label}
+      >
         <Speaker muted={!soundOn || muted} />
       </button>
       <input
@@ -62,6 +71,7 @@ export default function AudioController() {
         max="1"
         step="0.05"
         value={volume}
+        disabled={suspended}
         aria-label={story.audio.volume}
         onChange={(event) => {
           const next = Number(event.target.value);

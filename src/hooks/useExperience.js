@@ -11,7 +11,7 @@ import {
   writeStorage,
 } from "../utils/storage";
 
-const SCENES = new Set(["opening", "galaxy", "memory", "letter", "stars", "wish", "gift", "ending"]);
+const SCENES = new Set(["opening", "galaxy", "memory", "letter", "video", "stars", "wish", "gift", "ending"]);
 
 function readScene() {
   const value = readSession(keys.scene, "opening");
