@@ -1,6 +1,7 @@
 import { useEffect, useId, useState } from "react";
 import { motion } from "framer-motion";
 import { story } from "../data/story";
+import DateMark from "./DateMark";
 
 const DUST = [
   { left: "8%", delay: "0s", duration: "7s" },
@@ -14,28 +15,6 @@ const DUST = [
   { left: "34%", delay: "3s", duration: "7.8s" },
   { left: "62%", delay: "1s", duration: "8.6s" },
 ];
-
-function Digit({ final, delay, reduced }) {
-  const [value, setValue] = useState(reduced ? final : 3);
-
-  useEffect(() => {
-    if (reduced) return undefined;
-    const toTwo = window.setTimeout(() => setValue(2), delay);
-    const toFinal = window.setTimeout(() => setValue(final), delay + 340);
-    return () => {
-      window.clearTimeout(toTwo);
-      window.clearTimeout(toFinal);
-    };
-  }, [delay, final, reduced]);
-
-  return (
-    <span className="digit" aria-hidden="true">
-      <span key={value} className="digit-face">
-        {value}
-      </span>
-    </span>
-  );
-}
 
 export default function WishScene({ wish, onSave, onDelete, onNext, reduced }) {
   const privacyId = useId();
@@ -105,20 +84,11 @@ export default function WishScene({ wish, onSave, onDelete, onNext, reduced }) {
         {flying ? <span className="wish-comet" aria-hidden="true" /> : null}
         {flying ? <span className="wish-ripple" aria-hidden="true" /> : null}
         <p className="eyebrow">{story.wish.kicker}</p>
-        <h2 id="wish-title" tabIndex={-1} className="sr-only">
+        <h2 id="wish-title" tabIndex={-1}>
           {story.wish.title}
         </h2>
-        <div className="flip-clock" dir="ltr" role="img" aria-label={story.wish.clockLabel}>
-          <Digit final={1} delay={80} reduced={reduced} />
-          <Digit final={1} delay={220} reduced={reduced} />
-          <span className="colon" aria-hidden="true">
-            :
-          </span>
-          <Digit final={1} delay={360} reduced={reduced} />
-          <Digit final={1} delay={500} reduced={reduced} />
-        </div>
+        <DateMark reduced={reduced} size="wish" />
         <p className="prose is-center wish-text">{story.wish.text}</p>
-        <p className="wish-note">{story.wish.note}</p>
         <p className="wish-aside">{story.wish.aside}</p>
         <p className="wish-turn">{story.wish.turn}</p>
 

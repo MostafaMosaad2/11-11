@@ -2,6 +2,8 @@ import { ambientSrc, paperSrc } from "virtual:voice-message";
 
 let audio = null;
 let fadeFrame = 0;
+let fadeToken = 0;
+let hold = null;
 let snapshot = { phase: "idle" };
 const listeners = new Set();
 
@@ -31,6 +33,7 @@ export function subscribeAmbient(listener) {
 
 function fadeTo(target, ms, done) {
   window.cancelAnimationFrame(fadeFrame);
+  const token = ++fadeToken;
   const node = audio;
   if (!node) {
     done?.();
@@ -39,12 +42,61 @@ function fadeTo(target, ms, done) {
   const from = node.volume;
   const start = performance.now();
   const step = (now) => {
+    if (token !== fadeToken) return;
     const progress = Math.min(1, (now - start) / ms);
     node.volume = from + (target - from) * progress;
     if (progress < 1) fadeFrame = window.requestAnimationFrame(step);
     else done?.();
   };
   fadeFrame = window.requestAnimationFrame(step);
+}
+
+export function suspendAmbient() {
+  if (hold) return hold.ready;
+  let finish = () => {};
+  const ready = new Promise((resolve) => {
+    finish = resolve;
+  });
+  const node = audio;
+  const wasPlaying = snapshot.phase === "playing" && Boolean(node) && !node.paused;
+  hold = { wasPlaying, volume: node ? node.volume : 0, ready, finish };
+  if (!wasPlaying || !node) {
+    finish();
+    return ready;
+  }
+  publish({ phase: "suspended" });
+  fadeTo(0, 480, () => {
+    if (!hold?.wasPlaying || !audio) {
+      finish();
+      return;
+    }
+    audio.pause();
+    publish({ phase: "suspended" });
+    finish();
+  });
+  return ready;
+}
+
+export function resumeAmbient() {
+  if (!hold) return;
+  const saved = hold;
+  hold = null;
+  saved.finish();
+  fadeToken += 1;
+  window.cancelAnimationFrame(fadeFrame);
+  if (!saved.wasPlaying || !audio) {
+    if (snapshot.phase === "suspended") publish({ phase: "muted" });
+    return;
+  }
+  const level = clampVolume(saved.volume);
+  audio.volume = 0;
+  audio
+    .play()
+    .then(() => {
+      publish({ phase: "playing" });
+      fadeTo(level, 900);
+    })
+    .catch(() => publish({ phase: "blocked" }));
 }
 
 function ensure() {
@@ -59,6 +111,7 @@ function ensure() {
 }
 
 export function playAmbientFromGesture(volume) {
+  if (hold) return;
   const node = ensure();
   if (!node || snapshot.phase === "missing") return;
   const level = clampVolume(volume);
@@ -77,6 +130,7 @@ export function playAmbientFromGesture(volume) {
 }
 
 export function pauseAmbient() {
+  if (hold) return;
   if (!audio) {
     publish({ phase: "muted" });
     return;
@@ -88,6 +142,7 @@ export function pauseAmbient() {
 }
 
 export function setAmbientLevel(volume) {
+  if (hold) return;
   if (audio && snapshot.phase === "playing") audio.volume = clampVolume(volume);
 }
 

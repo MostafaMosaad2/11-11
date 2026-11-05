@@ -2,16 +2,17 @@ import { useEffect, useId, useRef } from "react";
 import { story } from "../data/story";
 import Starfield from "./Starfield";
 
-const POS = [
-  { x: 50, y: 18 },
-  { x: 30, y: 36 },
-  { x: 70, y: 34 },
-  { x: 50, y: 52 },
-  { x: 28, y: 68 },
-  { x: 72, y: 66 },
-  { x: 38, y: 82 },
-  { x: 64, y: 80 },
-];
+const PLACE = {
+  "memory-1": { x: 50, y: 18 },
+  "memory-2": { x: 30, y: 36 },
+  "memory-3": { x: 70, y: 34 },
+  "memory-4": { x: 50, y: 52 },
+  letter: { x: 28, y: 68 },
+  video: { x: 86, y: 22 },
+  stars: { x: 72, y: 66 },
+  wish: { x: 38, y: 82 },
+  gift: { x: 64, y: 80 },
+};
 
 function starPoints(cx, cy, outer, inner, points = 5) {
   const coords = [];
@@ -49,6 +50,12 @@ function CelestialIcon({ kind }) {
       )}
       {kind === "letter" && (
         <path d="M24 30h32v22H24z M24 30l16 12 16-12" fill="none" stroke="#f3e6c4" strokeWidth="1.6" />
+      )}
+      {kind === "video" && (
+        <>
+          <rect x="24" y="28" width="32" height="24" rx="3" fill="none" stroke="#f3e6c4" strokeWidth="1.5" />
+          <polygon points="36,34 36,46 46,40" fill="#d6b77a" />
+        </>
       )}
       {kind === "cluster" && (
         <>
@@ -101,7 +108,14 @@ export default function MemoryGalaxy({ visited, starsComplete, reduced, onOpen }
       unlock: true,
     })),
     { id: "letter", scene: "letter", label: story.letter.nav, kind: "letter", unlock: visited.includes("memory-4") },
-    { id: "stars", scene: "stars", label: story.stars.nav, kind: "cluster", unlock: visited.includes("letter") },
+    { id: "video", scene: "video", label: story.video.nav, kind: "video", unlock: visited.includes("letter") },
+    {
+      id: "stars",
+      scene: "stars",
+      label: story.stars.nav,
+      kind: "cluster",
+      unlock: visited.includes("video") || visited.includes("stars"),
+    },
     {
       id: "wish",
       scene: "wish",
@@ -208,8 +222,8 @@ export default function MemoryGalaxy({ visited, starsComplete, reduced, onOpen }
         onPointerCancel={onPointerUp}
       >
         <div className="galaxy-layer" ref={layerRef} role="group" aria-label={story.galaxy.title}>
-          {nodes.map((node, index) => {
-            const spot = POS[index] ?? POS[POS.length - 1];
+          {nodes.map((node) => {
+            const spot = PLACE[node.id] ?? { x: 50, y: 50 };
             return (
               <button
                 key={node.id}

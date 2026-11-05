@@ -214,7 +214,7 @@ function GoldHeart() {
   );
 }
 
-export default function HiddenLoveLetter({ onNext, onGalaxy }) {
+export default function HiddenLoveLetter({ onNext }) {
   const reduced = usePrefersReducedMotion();
   const lines = useMemo(() => story.letter.body.split("\n"), []);
   const greetingIndex = useMemo(() => lines.findIndex((line) => line.trim()), [lines]);
@@ -520,9 +520,6 @@ export default function HiddenLoveLetter({ onNext, onGalaxy }) {
           <div className="chapter-nav">
             <button type="button" className="btn btn-solid" onClick={onNext}>
               {story.ui.next}
-            </button>
-            <button type="button" className="btn btn-ghost" onClick={onGalaxy}>
-              {story.ui.toGalaxy}
             </button>
           </div>
         ) : null}

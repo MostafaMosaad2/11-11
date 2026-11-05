@@ -55,7 +55,7 @@ function CssGiftBox({ open, reduced, showImage, onImageError }) {
   );
 }
 
-export default function GiftReveal({ endingSeen, onSurprise, onGalaxy }) {
+export default function GiftReveal({ endingSeen, onSurprise }) {
   const reduced = usePrefersReducedMotion();
   const [open, setOpen] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
@@ -160,9 +160,6 @@ export default function GiftReveal({ endingSeen, onSurprise, onGalaxy }) {
                   {reduced ? story.ending.more : story.ui.skip}
                 </button>
               )}
-              <button type="button" className="btn btn-ghost" onClick={onGalaxy}>
-                {story.ui.toGalaxy}
-              </button>
             </div>
           </div>
         )}

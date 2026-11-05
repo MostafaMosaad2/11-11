@@ -1,6 +1,6 @@
 import { story } from "../data/story";
 
-const steps = [...story.memories.map((item) => item.id), "letter", "stars", "wish", "gift"];
+const steps = [...story.memories.map((item) => item.id), "letter", "video", "stars", "wish", "gift"];
 
 function dotState(id, current, visited) {
   if (id === current) return "is-current";

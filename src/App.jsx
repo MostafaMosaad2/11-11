@@ -7,6 +7,7 @@ import ExperienceProgress from "./components/ExperienceProgress";
 import GalaxyBackground from "./components/GalaxyBackground";
 import GiftReveal from "./components/GiftReveal";
 import HiddenLoveLetter from "./components/HiddenLoveLetter";
+import SurpriseVideoMemory from "./components/SurpriseVideoMemory";
 import MemoryChapter from "./components/MemoryChapter";
 import MemoryGalaxy from "./components/MemoryGalaxy";
 import OpeningScene from "./components/OpeningScene";
@@ -98,10 +99,17 @@ export default function App() {
       <MemoryGalaxy visited={visited} starsComplete={starsComplete} reduced={reduced} onOpen={(target) => travel(target, { wash: "soft", hold: 460 })} />
     );
   } else if (scene === "memory") {
-    content = <MemoryChapter memory={memory} onNext={nextFromMemory} onGalaxy={toGalaxy} />;
+    content = <MemoryChapter memory={memory} onNext={nextFromMemory} />;
   } else if (scene === "letter") {
     content = (
-      <HiddenLoveLetter onNext={() => travel({ scene: "stars" }, { wash: "soft", hold: 480 })} onGalaxy={toGalaxy} />
+      <HiddenLoveLetter onNext={() => travel({ scene: "video" }, { wash: "candle", hold: 640 })} />
+    );
+  } else if (scene === "video") {
+    content = (
+      <SurpriseVideoMemory
+        reduced={reduced}
+        onNext={() => travel({ scene: "stars" }, { wash: "soft", hold: 520 })}
+      />
     );
   } else if (scene === "stars") {
     content = (
@@ -126,7 +134,6 @@ export default function App() {
     content = (
       <GiftReveal
         endingSeen={endingSeen}
-        onGalaxy={toGalaxy}
         onSurprise={() => travel({ scene: "ending" }, { wash: "dark", hold: reduced ? 0 : 1000, immediate: reduced })}
       />
     );
