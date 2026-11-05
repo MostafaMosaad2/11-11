@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { starLayout, story } from "../data/story";
-import { scrollToId } from "../utils/scroll";
+import HeartFromStars from "./HeartFromStars";
 import StarIcon from "./StarIcon";
 
 const LINES = [
@@ -25,10 +25,10 @@ function point(index) {
   };
 }
 
-export default function StarConstellation({ onUnlock, reduced }) {
-  const [found, setFound] = useState(() => Array(story.stars.messages.length).fill(false));
+export default function StarConstellation({ found, onFound, onContinue, reduced }) {
+  const flags = found?.length === story.stars.messages.length ? found : Array(story.stars.messages.length).fill(false);
   const [active, setActive] = useState(null);
-  const count = found.filter(Boolean).length;
+  const count = flags.filter(Boolean).length;
   const complete = count === story.stars.messages.length;
 
   useEffect(() => {
@@ -40,32 +40,29 @@ export default function StarConstellation({ onUnlock, reduced }) {
   }, []);
 
   useEffect(() => {
-    if (found.every(Boolean)) onUnlock();
-  }, [found, onUnlock]);
+    const stage = document.getElementById("stage-root");
+    if (!stage || active == null) return undefined;
+    const previous = stage.style.overflow;
+    stage.style.overflow = "hidden";
+    const opener = document.getElementById(`star-${active}`);
+    document.getElementById("star-close")?.focus();
+    return () => {
+      stage.style.overflow = previous;
+      opener?.focus();
+    };
+  }, [active]);
 
   function choose(index) {
     setActive(index);
-    setFound((current) => {
-      if (current[index]) return current;
-      const next = current.slice();
-      next[index] = true;
-      return next;
-    });
+    onFound(index);
   }
 
   function onStarKey(event, index) {
-    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight" && event.key !== "ArrowUp" && event.key !== "ArrowDown") {
-      return;
-    }
+    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
     event.preventDefault();
     const forward = event.key === "ArrowLeft" || event.key === "ArrowDown";
     const next = (index + (forward ? 1 : -1) + starLayout.length) % starLayout.length;
     document.getElementById(`star-${next}`)?.focus();
-  }
-
-  function continueStory() {
-    scrollToId("wish", reduced);
-    document.getElementById("wish-title")?.focus({ preventScroll: true });
   }
 
   return (
@@ -78,7 +75,7 @@ export default function StarConstellation({ onUnlock, reduced }) {
         <p className="progress" aria-live="polite">
           {story.stars.progress(count)}
         </p>
-        <div className="constellation" role="group" aria-label={story.stars.groupLabel}>
+        <div className={`constellation${complete ? " is-complete" : ""}`} role="group" aria-label={story.stars.groupLabel}>
           <svg className="constellation-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
             {LINES.map(([from, to]) => {
               const start = point(from);
@@ -90,6 +87,7 @@ export default function StarConstellation({ onUnlock, reduced }) {
                   y1={start.y}
                   x2={end.x}
                   y2={end.y}
+                  pathLength="1"
                   vectorEffect="non-scaling-stroke"
                 />
               );
@@ -100,7 +98,7 @@ export default function StarConstellation({ onUnlock, reduced }) {
               key={story.stars.messages[index]}
               id={`star-${index}`}
               type="button"
-              className={`star-btn${found[index] ? " is-found" : ""}${active === index ? " is-active" : ""}`}
+              className={`star-btn${flags[index] ? " is-found" : ""}${active === index ? " is-active" : ""}`}
               style={{ top: spot.top, left: spot.left, "--star-size": `${spot.size}px` }}
               aria-label={story.stars.starLabel(index + 1)}
               aria-pressed={active === index}
@@ -113,25 +111,39 @@ export default function StarConstellation({ onUnlock, reduced }) {
           ))}
         </div>
 
-        <div className="star-card" id="star-message" role="status">
-          {active == null ? (
-            <p className="star-hint">{story.stars.hint}</p>
-          ) : (
-            <>
-              <p className="star-kicker">{story.stars.starLabel(active + 1)}</p>
+        {active == null ? (
+          complete ? null : (
+            <div className="star-card" id="star-message">
+              <p className="star-hint">{story.stars.hint}</p>
+            </div>
+          )
+        ) : (
+          <div className="star-overlay" role="presentation" onClick={() => setActive(null)}>
+            <div
+              className="star-card star-dialog"
+              id="star-message"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="star-dialog-title"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <p className="star-kicker" id="star-dialog-title">
+                {story.stars.starLabel(active + 1)}
+              </p>
               <p className="star-copy">{story.stars.messages[active]}</p>
-              <button type="button" className="btn-text" onClick={() => setActive(null)}>
+              <button type="button" id="star-close" className="btn-text" onClick={() => setActive(null)}>
                 {story.stars.close}
               </button>
-            </>
-          )}
-        </div>
+            </div>
+          </div>
+        )}
 
         {complete ? (
           <div className="unlock" role="status">
+            {reduced ? null : <HeartFromStars steady />}
             <div className="unlock-line" aria-hidden="true" />
             <p>{story.stars.unlocked}</p>
-            <button type="button" className="btn btn-gold" onClick={continueStory}>
+            <button type="button" className="btn btn-solid" onClick={onContinue}>
               {story.stars.continue}
             </button>
           </div>

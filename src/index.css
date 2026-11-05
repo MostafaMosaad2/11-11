@@ -1,11 +1,11 @@
 :root {
   --night: #080810;
-  --burgundy: #4a1025;
-  --crimson: #a51d42;
+  --burgundy: #3c1025;
+  --crimson: #a71d45;
   --gold: #d6b77a;
   --gold-deep: #8c6734;
-  --ivory: #f5f0ea;
-  --ivory-dim: rgba(245, 240, 234, 0.74);
+  --ivory: #f7f0e8;
+  --ivory-dim: rgba(247, 240, 232, 0.74);
   --display: "Amiri", "Traditional Arabic", "Times New Roman", serif;
   --body: "Cairo", "Segoe UI", Tahoma, sans-serif;
   --numeral: "Playfair Display", Palatino, "Times New Roman", serif;
@@ -74,17 +74,16 @@ svg {
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--night);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #4a1025;
-  border: 2px solid var(--night);
-  border-radius: 99px;
+  background: rgba(214, 183, 122, 0.35);
+  border-radius: 999px;
 }
 
 .sr-only {
@@ -352,7 +351,8 @@ main {
   outline-offset: 3px;
 }
 
-.btn-solid {
+.btn-solid,
+.btn-gold {
   background: linear-gradient(180deg, #f0deb4, #d6b77a 42%, #b8924e);
   color: #080810;
   border-color: transparent;

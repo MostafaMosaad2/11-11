@@ -4,13 +4,15 @@ import { prefersReducedMotion, usePrefersReducedMotion } from "../hooks/usePrefe
 
 const beats = [
   ...story.chat.messages.map((_, index) => ({ type: "message", message: index, hold: 1080 })),
-  { type: "pause", hold: 1500 },
-  { type: "typing", hold: 2300 },
+  { type: "pause", hold: 700 },
+  { type: "bridge", hold: 1400 },
+  { type: "typing", hold: 2100 },
   { type: "reveal", hold: 850 },
   { type: "reaction", hold: 650 },
   { type: "closing", hold: 0 },
 ];
 
+const bridgeAt = beats.findIndex((beat) => beat.type === "bridge");
 const revealAt = beats.findIndex((beat) => beat.type === "reveal");
 const reactionAt = beats.findIndex((beat) => beat.type === "reaction");
 const closingAt = beats.findIndex((beat) => beat.type === "closing");
@@ -72,6 +74,7 @@ export default function ChatReenactment() {
   const visibleCount = beats
     .slice(0, Math.max(0, beat + 1))
     .filter((item) => item.type === "message").length;
+  const showBridge = beat >= bridgeAt;
   const showTyping = beat >= 0 && beats[beat].type === "typing";
   const showReveal = beat >= revealAt;
   const showReaction = beat >= reactionAt;
@@ -99,6 +102,7 @@ export default function ChatReenactment() {
             </div>
           </div>
         ))}
+        {showBridge ? <p className="chat-bridge">{story.chat.bridge}</p> : null}
         {showTyping ? (
           <div className="typing" aria-hidden="false">
             <span />
@@ -126,6 +130,7 @@ export default function ChatReenactment() {
       <button type="button" className="btn btn-ghost" onClick={replay}>
         {story.chat.replay}
       </button>
+      <p className="chat-note">{story.chat.note}</p>
     </div>
   );
 }

@@ -25,9 +25,9 @@ const smallStars = makeShadows(11, 54, "rgba(245, 240, 234, ALPHA)");
 const mediumStars = makeShadows(1111, 22, "rgba(214, 183, 122, ALPHA)");
 const brightStars = makeShadows(2026, 9, "rgba(245, 240, 234, ALPHA)");
 
-export default function GalaxyBackground() {
+export default function GalaxyBackground({ mood = "opening" }) {
   return (
-    <div className="sky" aria-hidden="true">
+    <div className={`sky mood-${mood}`} aria-hidden="true">
       <div className="sky-glow" />
       <div className="sky-stars sky-stars-sm" style={{ boxShadow: smallStars }} />
       <div className="sky-stars sky-stars-md" style={{ boxShadow: mediumStars }} />

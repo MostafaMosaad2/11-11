@@ -3,29 +3,39 @@ import path from "node:path";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
-const audioPath = path.resolve("public/audio/message.mp3");
+const audioDir = path.resolve("public/audio");
 const virtualId = "virtual:voice-message";
 const resolvedVirtualId = "\0virtual:voice-message";
 
-function optionalVoicePlugin() {
+function audioModuleSource() {
+  const line = (key, name) => {
+    const exists = fs.existsSync(path.join(audioDir, name));
+    return `export const ${key} = ${exists ? JSON.stringify(`/audio/${name}`) : "null"};`;
+  };
+  return [line("voiceSrc", "message.mp3"), line("ambientSrc", "ambient.mp3"), line("paperSrc", "paper.mp3")].join(
+    "\n",
+  );
+}
+
+function optionalAudioPlugin() {
   return {
-    name: "optional-voice-message",
+    name: "optional-audio",
     resolveId(id) {
       if (id === virtualId) return resolvedVirtualId;
     },
     load(id) {
       if (id !== resolvedVirtualId) return;
-      const exists = fs.existsSync(audioPath);
-      return `export const voiceSrc = ${exists ? '"/audio/message.mp3"' : "null"}\n`;
+      return audioModuleSource();
     },
     configureServer(server) {
       const reload = (file) => {
-        if (path.resolve(file) !== audioPath) return;
+        if (path.dirname(path.resolve(file)) !== audioDir) return;
         const module = server.moduleGraph.getModuleById(resolvedVirtualId);
         if (module) server.moduleGraph.invalidateModule(module);
         server.ws.send({ type: "full-reload" });
       };
-      server.watcher.add(path.dirname(audioPath));
+      fs.mkdirSync(audioDir, { recursive: true });
+      server.watcher.add(audioDir);
       server.watcher.on("add", reload);
       server.watcher.on("unlink", reload);
     },
@@ -33,5 +43,5 @@ function optionalVoicePlugin() {
 }
 
 export default defineConfig({
-  plugins: [react(), optionalVoicePlugin()],
+  plugins: [react(), optionalAudioPlugin()],
 });
