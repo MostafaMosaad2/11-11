@@ -77,15 +77,10 @@
   opacity: 0.72;
 }
 
-.nav-galaxy,
 .audio-dock {
   position: fixed;
   z-index: 6;
   top: calc(0.55rem + env(safe-area-inset-top));
-}
-
-.nav-galaxy {
-  inset-inline-start: 0.75rem;
 }
 
 .audio-dock {
@@ -334,8 +329,7 @@
   margin-top: 1.6rem;
 }
 
-.chat-bridge,
-.chat-note {
+.chat-bridge {
   text-align: center;
 }
 
@@ -344,12 +338,6 @@
   color: var(--gold);
   font-family: var(--display);
   font-size: 1.15rem;
-}
-
-.chat-note {
-  margin: 0;
-  color: var(--ivory-dim);
-  font-size: 0.85rem;
 }
 
 .constellation.is-complete line {
@@ -378,154 +366,6 @@
   text-align: center;
   border: 0;
   padding: 0;
-}
-
-.letter-layout {
-  width: min(100%, 40rem);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.letter-slot {
-  display: grid;
-  grid-template-rows: 0fr;
-  width: min(100%, 38rem);
-  overflow: hidden;
-  transition: grid-template-rows 1s ease;
-}
-
-.letter-layout.is-open .letter-slot {
-  position: relative;
-  z-index: 2;
-  grid-template-rows: 1fr;
-  overflow: visible;
-}
-
-.letter-layout.is-open .envelope-button {
-  position: relative;
-  z-index: 1;
-}
-
-.letter-sheet {
-  overflow: hidden;
-  min-height: 0;
-  background: transparent;
-  color: #2a1420;
-  border: 0;
-  border-radius: 0.35rem;
-  padding: 0;
-  text-align: start;
-  box-shadow: none;
-}
-
-.letter-layout.is-open .letter-sheet {
-  padding: 1.35rem 1.15rem 1.5rem;
-  background:
-    radial-gradient(rgba(140, 103, 52, 0.05) 0.6px, transparent 0.7px),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.55), transparent 30%),
-    #f7f0e8;
-  background-size: 7px 7px, 100% 100%, auto;
-  border: 1px solid rgba(214, 183, 122, 0.9);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
-}
-
-.letter-line {
-  display: block;
-  font-family: var(--display);
-  font-size: 1.2rem;
-  line-height: 2;
-}
-
-.envelope-button {
-  width: min(100%, 23rem);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--ivory);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.8rem;
-}
-
-.envelope-button:disabled {
-  cursor: default;
-}
-
-.envelope {
-  display: block;
-  position: relative;
-  width: 100%;
-  perspective: 900px;
-  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.35));
-}
-
-.envelope-flap {
-  display: block;
-  position: relative;
-  z-index: 2;
-  height: 92px;
-  margin-bottom: -1px;
-  background: linear-gradient(180deg, #7a2746, #4a1830);
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  transform-origin: center top;
-  transition: transform 1s cubic-bezier(0.62, 0.02, 0.2, 1);
-}
-
-.letter-layout.is-open .envelope-flap {
-  transform: rotateX(188deg);
-  z-index: 0;
-}
-
-.envelope-body {
-  display: block;
-  position: relative;
-  height: 148px;
-  border-radius: 0 0 1rem 1rem;
-  border: 1px solid rgba(214, 183, 122, 0.75);
-  background:
-    radial-gradient(circle at 50% 0%, rgba(214, 183, 122, 0.16), transparent 46%),
-    linear-gradient(180deg, #5a1a34, #3c1025 58%, #240814);
-  box-shadow: inset 0 0 0 1px rgba(214, 183, 122, 0.16);
-}
-
-.seal {
-  position: absolute;
-  left: 50%;
-  top: -32px;
-  z-index: 3;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  transform: translateX(-50%);
-  background: radial-gradient(circle at 35% 32%, #fff6df, #d6b77a 46%, #8c6734 80%);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.28), inset 0 0 0 2px rgba(120, 78, 32, 0.35);
-}
-
-.seal::after {
-  content: "✦";
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  color: #6d431c;
-  font-size: 1.15rem;
-}
-
-.letter-layout.is-open .seal {
-  animation: seal-crack 0.75s ease forwards;
-}
-
-.envelope-caption {
-  font-family: var(--display);
-  font-size: 1.25rem;
-  line-height: 1.8;
-}
-
-.envelope-hint {
-  color: var(--gold);
 }
 
 .wish-note,
@@ -823,11 +663,6 @@
 
 @keyframes orbit-spin {
   to { transform: rotate(360deg); }
-}
-
-@keyframes seal-crack {
-  40% { transform: translateX(-50%) scale(1.05); }
-  100% { transform: translateX(-50%) scale(0.7) rotate(8deg); opacity: 0; }
 }
 
 @keyframes trace {

@@ -142,7 +142,7 @@ export default function App() {
       </a>
       <AudioController />
       {scene === "opening" ? null : (
-        <ExperienceProgress scene={scene} memoryId={memoryId} visited={visited} onGalaxy={toGalaxy} />
+        <ExperienceProgress scene={scene} memoryId={memoryId} visited={visited} />
       )}
       <main
         id="stage-root"

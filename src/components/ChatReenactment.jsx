@@ -130,7 +130,6 @@ export default function ChatReenactment() {
       <button type="button" className="btn btn-ghost" onClick={replay}>
         {story.chat.replay}
       </button>
-      <p className="chat-note">{story.chat.note}</p>
     </div>
   );
 }

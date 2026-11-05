@@ -75,7 +75,6 @@ export const story = {
     typingLabel: "جاري الكتابة",
     replay: "أعيدي المشهد",
     bridge: "بعد شرح وتلميحات كثيرة...",
-    note: "إعادة تمثيل مرحة للكلام، مش صورة حرفية من الشات.",
     messages: [
       { day: "الامس", from: "me", text: "بقولك، في واحدة أنا بحبها... أعمل إيه؟ أعترف لها ولا لأ؟" },
       { from: "her", text: "لا انا مالي " },
@@ -183,7 +182,7 @@ export const story = {
     mark: "11:11",
     dedication: "ليكي إنتِ يا يارا.",
     again: "أعيش الحكاية تاني",
-    galaxy: "ارجعي للنجوم",
+    galaxy: "النجوم",
   },
   voice: {
     title: "رسالة صوتية",
@@ -202,7 +201,6 @@ export const story = {
     skip: "تخطي",
     next: "كملي الحكاية",
     toGalaxy: "ارجعي للنجوم",
-    toGalaxyShort: "النجوم",
     skipLink: "تخطي إلى المحتوى",
   },
 };
