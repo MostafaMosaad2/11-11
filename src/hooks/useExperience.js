@@ -33,10 +33,12 @@ export function useExperience() {
   const [scene, setScene] = useState(readScene);
   const [memoryId, setMemoryId] = useState(readMemory);
   const [visited, setVisited] = useState(readVisited);
+  const [revisit, setRevisit] = useState(() => readSession(keys.revisit, false) === true);
   const [stars, setStars] = useState(readStars);
   const [wish, setWish] = useState(readWish);
   const [wash, setWash] = useState(null);
   const timer = useRef(0);
+  const visitedRef = useRef(visited);
 
   useEffect(() => {
     const done = stars.every(Boolean);
@@ -56,6 +58,14 @@ export function useExperience() {
   useEffect(() => {
     writeSession(keys.visited, visited);
   }, [visited]);
+
+  useEffect(() => {
+    visitedRef.current = visited;
+  }, [visited]);
+
+  useEffect(() => {
+    writeSession(keys.revisit, revisit);
+  }, [revisit]);
 
   useEffect(() => {
     writeStorage(keys.stars, stars);
@@ -88,10 +98,15 @@ export function useExperience() {
     [apply, reduced],
   );
 
+  const noteGalaxyVisit = useCallback(() => {
+    if (visitedRef.current.includes("ending")) setRevisit(true);
+  }, []);
+
   const restart = useCallback(() => {
     window.clearTimeout(timer.current);
     setWash(null);
     setVisited([]);
+    setRevisit(false);
     setMemoryId("memory-1");
     setScene("opening");
   }, []);
@@ -110,6 +125,8 @@ export function useExperience() {
     scene,
     memoryId,
     visited,
+    revisit,
+    noteGalaxyVisit,
     stars,
     setStars,
     starsComplete: stars.every(Boolean),

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { resumeAmbient, suspendAmbient } from "../audio/engine";
 import { story } from "../data/story";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
@@ -8,6 +8,15 @@ const MEDIA_RATIO = 16 / 9;
 const HEART_X = 0.5;
 const HEART_Y = 0.525;
 const HEART_SCALE = 0.2;
+
+const MOTES = [
+  { left: "14%", top: "20%", delay: "0s" },
+  { left: "78%", top: "16%", delay: "1.1s" },
+  { left: "24%", top: "68%", delay: "0.5s" },
+  { left: "84%", top: "62%", delay: "1.7s" },
+  { left: "46%", top: "10%", delay: "0.3s" },
+  { left: "62%", top: "78%", delay: "1.3s" },
+];
 
 function GoldHeart() {
   return (
@@ -47,6 +56,40 @@ function placeHeart(node) {
   node.style.setProperty("--heart-size", `${size}px`);
 }
 
+function LetterVerse({ verse, index, shown, onReveal }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (shown) return undefined;
+    const node = ref.current;
+    if (!node || typeof IntersectionObserver === "undefined") return undefined;
+    const root = document.getElementById("stage-root");
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        observer.disconnect();
+        onReveal(index);
+      },
+      { root, threshold: 0.16, rootMargin: "0px 0px -2% 0px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [index, onReveal, shown]);
+
+  const Tag = verse.role === "title" ? "h3" : "p";
+  return (
+    <Tag
+      ref={ref}
+      className={`letter-verse is-${verse.role}${shown ? " is-shown" : ""}`}
+      style={{ transitionDelay: `${index > 1 ? (index % 3) * 70 : 0}ms` }}
+    >
+      {verse.text}
+      {verse.role === "heart" ? <GoldHeart /> : null}
+      {verse.role === "name" ? <span className="letter-name">يارا</span> : null}
+    </Tag>
+  );
+}
+
 function park(node) {
   if (!node) return;
   node.pause();
@@ -64,14 +107,12 @@ function park(node) {
 export default function HiddenLoveLetter({ onNext, onGalaxy }) {
   const reduced = usePrefersReducedMotion();
   const copy = story.letter;
-  const lines = useMemo(() => copy.body.split("\n"), [copy.body]);
-  const greetingIndex = useMemo(() => lines.findIndex((line) => line.trim()), [lines]);
-  const signatureIndex = useMemo(() => {
-    for (let index = lines.length - 1; index >= 0; index -= 1) {
-      if (lines[index].trim()) return index;
-    }
-    return -1;
-  }, [lines]);
+  const paragraphs = copy.paragraphs;
+  const climaxAt = paragraphs.findIndex((verse) => verse.role === "coda");
+  const [revealed, setRevealed] = useState(reduced ? paragraphs.length : 1);
+  const reveal = useCallback((index) => {
+    setRevealed((current) => Math.max(current, index + 1));
+  }, []);
   const rootRef = useRef(null);
   const stageRef = useRef(null);
   const videoRef = useRef(null);
@@ -84,7 +125,6 @@ export default function HiddenLoveLetter({ onNext, onGalaxy }) {
   const [introCount, setIntroCount] = useState(reduced ? copy.intro.length : 0);
   const [introDone, setIntroDone] = useState(reduced);
   const [promptCount, setPromptCount] = useState(0);
-  const [lineCount, setLineCount] = useState(0);
   const [fault, setFault] = useState(false);
   const [stillOn, setStillOn] = useState(false);
 
@@ -110,6 +150,12 @@ export default function HiddenLoveLetter({ onNext, onGalaxy }) {
     setStillOn(true);
     setStage("settled");
   }
+
+  useEffect(() => {
+    if (reduced) return undefined;
+    const timer = window.setTimeout(() => reveal(1), 380);
+    return () => window.clearTimeout(timer);
+  }, [reduced, reveal]);
 
   useEffect(() => {
     const node = stageRef.current;
@@ -147,7 +193,6 @@ export default function HiddenLoveLetter({ onNext, onGalaxy }) {
     const id = token.current + 1;
     token.current = id;
     clearTimers();
-    setLineCount(0);
     setPromptCount(0);
     held.current = false;
 
@@ -193,26 +238,6 @@ export default function HiddenLoveLetter({ onNext, onGalaxy }) {
     run();
     return undefined;
   }, [copy.ready.length, reduced, stage]);
-
-  function startInk(id) {
-    let current = 0;
-    const step = () => {
-      if (token.current !== id) return;
-      current += 1;
-      setLineCount(current);
-      if (current < lines.length) {
-        const pause = lines[current - 1] === "" ? 180 : 420;
-        timers.current.push(window.setTimeout(step, pause));
-        return;
-      }
-      timers.current.push(
-        window.setTimeout(() => {
-          if (token.current === id) setStage("after");
-        }, 700),
-      );
-    };
-    timers.current.push(window.setTimeout(step, 520));
-  }
 
   function playBloom() {
     const node = videoRef.current;
@@ -267,8 +292,8 @@ export default function HiddenLoveLetter({ onNext, onGalaxy }) {
     held.current = false;
     setFault(false);
     setStillOn(false);
-    setLineCount(0);
     setPromptCount(0);
+    setRevealed(reduced ? paragraphs.length : 1);
     setIntroCount(0);
     setIntroDone(reduced);
     setStage("intro");
@@ -291,8 +316,7 @@ export default function HiddenLoveLetter({ onNext, onGalaxy }) {
     token.current = id;
     clearTimers();
     if (reduced) {
-      setLineCount(lines.length);
-      setStage("after");
+      setStage("reading");
       return;
     }
     setStage("opening");
@@ -300,12 +324,11 @@ export default function HiddenLoveLetter({ onNext, onGalaxy }) {
       window.setTimeout(() => {
         if (token.current !== id) return;
         setStage("reading");
-        startInk(id);
       }, 900),
     );
   }
 
-  const showLetter = stage === "reading" || stage === "after";
+  const showLetter = stage === "reading";
   const open = stage === "opening" || showLetter;
   const showVeil = stage === "intro" || stage === "playing";
 
@@ -377,34 +400,44 @@ export default function HiddenLoveLetter({ onNext, onGalaxy }) {
       ) : null}
 
       {showLetter ? (
-        <article className="letter-panel" aria-live="polite">
-          {lines.slice(0, lineCount).map((line, index) => {
-            const classes = ["letter-line"];
-            if (index === greetingIndex) classes.push("is-greeting");
-            if (line === "أنا بحبك يا يارا.") classes.push("is-vow");
-            if (index === signatureIndex) classes.push("is-signature");
-            return (
-              <span className={classes.join(" ")} key={`${index}-${line}`}>
-                {line || "\u00A0"}
-                {index === signatureIndex ? <GoldHeart /> : null}
-              </span>
-            );
-          })}
-        </article>
-      ) : null}
-
-      {stage === "after" ? (
-        <div className="letter-after">
-          <p>{copy.after}</p>
-          <div className="letter-actions">
-            <button type="button" className="btn btn-ghost" onClick={replay}>
-              {copy.replay}
-            </button>
-            <button type="button" className="btn btn-solid" onClick={onNext}>
-              {copy.next}
-            </button>
+        <article className="letter-panel">
+          {paragraphs.slice(0, climaxAt).map((verse, index) => (
+            <LetterVerse key={verse.text} verse={verse} index={index} shown={index < revealed} onReveal={reveal} />
+          ))}
+          <div className="letter-climax">
+            <img className="letter-ghost" src={copy.still} alt="" />
+            {paragraphs.slice(climaxAt, -1).map((verse, index) => (
+              <LetterVerse
+                key={verse.text}
+                verse={verse}
+                index={climaxAt + index}
+                shown={climaxAt + index < revealed}
+                onReveal={reveal}
+              />
+            ))}
+            <div className="letter-finale">
+              <div className="letter-motes" aria-hidden="true">
+                {MOTES.map((mote) => (
+                  <i key={mote.left} style={{ left: mote.left, top: mote.top, animationDelay: mote.delay }} />
+                ))}
+              </div>
+              <LetterVerse
+                verse={paragraphs[paragraphs.length - 1]}
+                index={paragraphs.length - 1}
+                shown={paragraphs.length - 1 < revealed}
+                onReveal={reveal}
+              />
+            </div>
+            <div className="letter-actions">
+              <button type="button" className="btn btn-ghost" onClick={replay}>
+                {copy.replay}
+              </button>
+              <button type="button" className="btn btn-solid" onClick={onNext}>
+                {copy.next}
+              </button>
+            </div>
           </div>
-        </div>
+        </article>
       ) : null}
       {onGalaxy ? (
         <button type="button" className="btn btn-ghost" onClick={onGalaxy}>

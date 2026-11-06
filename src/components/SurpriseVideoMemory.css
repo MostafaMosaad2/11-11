@@ -254,6 +254,25 @@
   color: var(--ivory-dim);
 }
 
+.memory-lyric {
+  position: absolute;
+  z-index: 3;
+  inset-inline: 0.7rem;
+  bottom: 4.35rem;
+  margin: 0;
+  padding: 1.4rem 0.7rem 0.35rem;
+  border-radius: 0.8rem;
+  background: linear-gradient(180deg, transparent, rgba(7, 6, 10, 0.78) 42%);
+  color: #f7f0e8;
+  font-family: var(--display);
+  font-size: clamp(1.02rem, 4.4vw, 1.28rem);
+  line-height: 1.75;
+  text-align: center;
+  text-wrap: balance;
+  pointer-events: none;
+  animation: lyric-in 0.2s ease both;
+}
+
 .memory-loading,
 .memory-fallback {
   position: absolute;
@@ -295,6 +314,11 @@
     opacity: 1;
     transform: none;
   }
+}
+
+@keyframes lyric-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
 }
 
 @keyframes memory-expand {

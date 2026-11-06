@@ -26,6 +26,15 @@ function Dust({ specks }) {
   );
 }
 
+function lyricFor(lines, time) {
+  let current = null;
+  for (let index = 0; index < lines.length; index += 1) {
+    if (time >= lines[index].at) current = { index, line: lines[index].line };
+    else break;
+  }
+  return current;
+}
+
 function RevealedLines({ lines, count }) {
   return lines.slice(0, count).map((line, index) => (
     <p key={`${index}-${line}`} className="memory-line">
@@ -243,6 +252,10 @@ export default function SurpriseVideoMemory({ reduced, onNext, onGalaxy }) {
   const playing = media === "playing";
   const showFilm = stage !== "intro";
   const broken = media === "missing" || media === "error";
+  const lyric =
+    stage === "cinema" && !broken && (playing || time > 0.12)
+      ? lyricFor(copy.lyrics, time)
+      : null;
 
   return (
     <section
@@ -262,7 +275,7 @@ export default function SurpriseVideoMemory({ reduced, onNext, onGalaxy }) {
 
       {stage === "intro" ? (
         <div className="memory-copy" aria-live="polite">
-          <p className="kicker">{copy.kicker}</p>
+          {copy.kicker && copy.kicker !== copy.title ? <p className="kicker">{copy.kicker}</p> : null}
           <RevealedLines lines={copy.intro} count={shown} />
           {introDone ? (
             <button type="button" className="btn btn-solid memory-cue" onClick={openFilm}>
@@ -324,6 +337,11 @@ export default function SurpriseVideoMemory({ reduced, onNext, onGalaxy }) {
               <button type="button" className="memory-play" onClick={play} aria-label={copy.play}>
                 <PlayIcon />
               </button>
+            ) : null}
+            {lyric ? (
+              <p className="memory-lyric" key={lyric.index}>
+                {lyric.line}
+              </p>
             ) : null}
             {stage === "cinema" && !broken ? (
               <div className="memory-controls" onClick={(event) => event.stopPropagation()}>

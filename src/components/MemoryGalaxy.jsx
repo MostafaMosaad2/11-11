@@ -107,14 +107,14 @@ export default function MemoryGalaxy({ visited, starsComplete, reduced, onOpen }
       kind: memory.kind,
       unlock: true,
     })),
-    { id: "letter", scene: "letter", label: story.letter.nav, kind: "letter", unlock: visited.includes("memory-4") },
-    { id: "video", scene: "video", label: story.video.nav, kind: "video", unlock: visited.includes("letter") },
+    { id: "video", scene: "video", label: story.video.nav, kind: "video", unlock: visited.includes("memory-4") },
+    { id: "letter", scene: "letter", label: story.letter.nav, kind: "letter", unlock: visited.includes("video") },
     {
       id: "stars",
       scene: "stars",
       label: story.stars.nav,
       kind: "cluster",
-      unlock: visited.includes("video") || visited.includes("stars"),
+      unlock: visited.includes("letter") || visited.includes("stars"),
     },
     {
       id: "wish",
@@ -167,7 +167,7 @@ export default function MemoryGalaxy({ visited, starsComplete, reduced, onOpen }
   }
 
   function onPointerDown(event) {
-    if (lockedRef.current) return;
+    if (lockedRef.current || event.target.closest(".celestial")) return;
     pointer.current = {
       id: event.pointerId,
       x: event.clientX,
@@ -246,13 +246,6 @@ export default function MemoryGalaxy({ visited, starsComplete, reduced, onOpen }
           })}
         </div>
       </div>
-      <nav className="chapter-fallback" aria-label={story.galaxy.listLabel}>
-        {nodes.map((node) => (
-          <button key={`list-${node.id}`} type="button" onClick={() => openNode(node, false)}>
-            {node.label}
-          </button>
-        ))}
-      </nav>
     </section>
   );
 }

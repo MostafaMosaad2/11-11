@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { story } from "../data/story";
-import { visualQuality } from "../utils/quality";
 import "./SecretEnding.css";
 
 const MARK = [
@@ -22,13 +21,6 @@ function ringSpot(index) {
   return [50 + Math.cos(angle) * 34, 48 + Math.sin(angle) * 30];
 }
 
-function butterflies() {
-  const quality = visualQuality();
-  if (quality === "low") return 3;
-  if (quality === "high") return 7;
-  return 5;
-}
-
 export default function SecretEnding({ stars, onRestart, onGalaxy, reduced }) {
   const copy = story.ending;
   const timers = useRef([]);
@@ -37,7 +29,6 @@ export default function SecretEnding({ stars, onRestart, onGalaxy, reduced }) {
   const [recap, setRecap] = useState(reduced ? copy.recap.length : 0);
   const [lines, setLines] = useState(0);
   const formed = phase === "form" || phase === "words" || phase === "done" || phase === "return";
-  const showFlower = phase === "flower" || phase === "stars" || formed;
   const showStars = phase === "stars" || formed;
 
   useEffect(() => {
@@ -74,8 +65,6 @@ export default function SecretEnding({ stars, onRestart, onGalaxy, reduced }) {
       setRecap(index + 1);
     }
     if (!(await wait(700, id))) return;
-    setPhase("flower");
-    if (!(await wait(1600, id))) return;
     setPhase("stars");
     if (!(await wait(1500, id))) return;
     setPhase("form");
@@ -120,7 +109,6 @@ export default function SecretEnding({ stars, onRestart, onGalaxy, reduced }) {
               );
             })
           : null}
-        {showFlower ? <FinaleFlower /> : null}
         {phase === "journey" ? <span className="finale-light" /> : null}
       </div>
 
@@ -176,36 +164,12 @@ export default function SecretEnding({ stars, onRestart, onGalaxy, reduced }) {
           </>
         ) : null}
 
-        {phase === "journey" || phase === "flower" || phase === "stars" || phase === "form" || phase === "words" ? (
+        {phase === "journey" || phase === "stars" || phase === "form" || phase === "words" ? (
           <button type="button" className="btn-text" onClick={finish}>
             {story.ui.skip}
           </button>
         ) : null}
       </div>
     </section>
-  );
-}
-
-function FinaleFlower() {
-  return (
-    <div className="finale-flower" aria-hidden="true">
-      <svg viewBox="0 0 120 120">
-        {Array.from({ length: 12 }, (_, index) => (
-          <ellipse
-            key={index}
-            cx="60"
-            cy="28"
-            rx="8"
-            ry="18"
-            fill={index % 2 ? "#c9841c" : "#e2b23c"}
-            transform={`rotate(${index * 30} 60 60)`}
-          />
-        ))}
-        <circle cx="60" cy="60" r="14" fill="#4a2914" />
-      </svg>
-      {Array.from({ length: butterflies() }, (_, index) => (
-        <span key={index} className="finale-butterfly" style={{ "--i": index }} />
-      ))}
-    </div>
   );
 }

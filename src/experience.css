@@ -168,8 +168,7 @@
 .stage-wrap[data-mood="heart"]::before,
 .stage-wrap[data-mood="dim"]::before,
 .stage-wrap[data-mood="candle"]::before,
-.stage-wrap[data-mood="gift"]::before,
-.stage-wrap[data-mood="ending"]::before {
+.stage-wrap[data-mood="gift"]::before {
   content: "";
   position: fixed;
   inset: 0;
@@ -191,19 +190,14 @@
   background: radial-gradient(circle at 50% 78%, rgba(214, 183, 122, 0.14), transparent 42%);
 }
 
-.stage-wrap[data-mood="ending"]::before {
-  background: rgba(0, 0, 0, 0.42);
-}
-
 .galaxy {
   position: relative;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr);
   overflow: hidden;
 }
 
 .galaxy-copy,
-.chapter-fallback,
 .galaxy-stage {
   position: relative;
   z-index: 1;
@@ -287,25 +281,6 @@
   outline: 2px solid var(--gold);
   outline-offset: 4px;
   border-radius: 1rem;
-}
-
-.chapter-fallback {
-  display: flex;
-  gap: 0.5rem;
-  overflow-x: auto;
-  padding: 0.4rem 0.9rem calc(0.35rem + env(safe-area-inset-bottom));
-  scrollbar-width: none;
-  touch-action: pan-x;
-}
-
-.chapter-fallback button {
-  flex: 0 0 auto;
-  min-height: 44px;
-  border-radius: 999px;
-  border: 1px solid rgba(214, 183, 122, 0.4);
-  background: rgba(8, 8, 16, 0.55);
-  color: var(--ivory);
-  padding: 0.35rem 0.9rem;
 }
 
 .pulse-ring,
