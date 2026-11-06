@@ -16,7 +16,7 @@ const DUST = [
   { left: "62%", delay: "1s", duration: "8.6s" },
 ];
 
-export default function WishScene({ wish, onSave, onDelete, onNext, reduced }) {
+export default function WishScene({ wish, onSave, onDelete, onNext, onGalaxy, reduced }) {
   const privacyId = useId();
   const errorId = useId();
   const [draft, setDraft] = useState(wish || "");
@@ -162,6 +162,11 @@ export default function WishScene({ wish, onSave, onDelete, onNext, reduced }) {
           <button type="button" className="btn btn-ghost" onClick={onNext}>
             {story.ui.next}
           </button>
+          {onGalaxy ? (
+            <button type="button" className="btn btn-ghost" onClick={onGalaxy}>
+              {story.ui.toGalaxy}
+            </button>
+          ) : null}
         </div>
       </motion.div>
     </section>

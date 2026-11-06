@@ -34,7 +34,7 @@ function RevealedLines({ lines, count }) {
   ));
 }
 
-export default function SurpriseVideoMemory({ reduced, onNext }) {
+export default function SurpriseVideoMemory({ reduced, onNext, onGalaxy }) {
   const copy = story.video;
   const videoRef = useRef(null);
   const alive = useRef(true);
@@ -377,6 +377,11 @@ export default function SurpriseVideoMemory({ reduced, onNext }) {
       {broken && stage !== "intro" ? (
         <button type="button" className="btn btn-solid" onClick={onNext}>
           {copy.next}
+        </button>
+      ) : null}
+      {onGalaxy ? (
+        <button type="button" className="btn btn-ghost" onClick={onGalaxy}>
+          {story.ui.toGalaxy}
         </button>
       ) : null}
     </section>

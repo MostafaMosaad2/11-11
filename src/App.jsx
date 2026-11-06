@@ -99,16 +99,20 @@ export default function App() {
       <MemoryGalaxy visited={visited} starsComplete={starsComplete} reduced={reduced} onOpen={(target) => travel(target, { wash: "soft", hold: 460 })} />
     );
   } else if (scene === "memory") {
-    content = <MemoryChapter memory={memory} onNext={nextFromMemory} />;
+    content = <MemoryChapter memory={memory} onNext={nextFromMemory} onGalaxy={endingSeen ? toGalaxy : undefined} />;
   } else if (scene === "letter") {
     content = (
-      <HiddenLoveLetter onNext={() => travel({ scene: "video" }, { wash: "candle", hold: 640 })} />
+      <HiddenLoveLetter
+        onNext={() => travel({ scene: "video" }, { wash: "candle", hold: 640 })}
+        onGalaxy={endingSeen ? toGalaxy : undefined}
+      />
     );
   } else if (scene === "video") {
     content = (
       <SurpriseVideoMemory
         reduced={reduced}
         onNext={() => travel({ scene: "stars" }, { wash: "soft", hold: 520 })}
+        onGalaxy={endingSeen ? toGalaxy : undefined}
       />
     );
   } else if (scene === "stars") {
@@ -117,6 +121,7 @@ export default function App() {
         found={stars}
         onFound={discoverStar}
         onContinue={() => travel({ scene: "wish" }, { wash: "soft", hold: 520 })}
+        onGalaxy={endingSeen ? toGalaxy : undefined}
         reduced={reduced}
       />
     );
@@ -127,6 +132,7 @@ export default function App() {
         onSave={saveWish}
         onDelete={deleteWish}
         onNext={() => travel({ scene: "gift" }, { wash: "gold", hold: 680 })}
+        onGalaxy={endingSeen ? toGalaxy : undefined}
         reduced={reduced}
       />
     );
@@ -135,10 +141,19 @@ export default function App() {
       <GiftReveal
         endingSeen={endingSeen}
         onSurprise={() => travel({ scene: "ending" }, { wash: "dark", hold: reduced ? 0 : 1000, immediate: reduced })}
+        onGalaxy={endingSeen ? toGalaxy : undefined}
       />
     );
   } else {
-    content = <SecretEnding visited={visited} onRestart={restart} onGalaxy={toGalaxy} reduced={reduced} />;
+    content = (
+      <SecretEnding
+        visited={visited}
+        stars={stars}
+        onRestart={restart}
+        onGalaxy={toGalaxy}
+        reduced={reduced}
+      />
+    );
   }
 
   return (

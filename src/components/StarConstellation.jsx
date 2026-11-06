@@ -25,11 +25,12 @@ function point(index) {
   };
 }
 
-export default function StarConstellation({ found, onFound, onContinue, reduced }) {
+export default function StarConstellation({ found, onFound, onContinue, onGalaxy, reduced }) {
   const flags = found?.length === story.stars.messages.length ? found : Array(story.stars.messages.length).fill(false);
   const [active, setActive] = useState(null);
   const count = flags.filter(Boolean).length;
   const complete = count === story.stars.messages.length;
+  const nextIndex = flags.findIndex((opened) => !opened);
 
   useEffect(() => {
     function onKey(event) {
@@ -53,8 +54,10 @@ export default function StarConstellation({ found, onFound, onContinue, reduced 
   }, [active]);
 
   function choose(index) {
+    const locked = index !== nextIndex && !flags[index];
+    if (locked) return;
     setActive(index);
-    onFound(index);
+    if (!flags[index]) onFound(index);
   }
 
   function onStarKey(event, index) {
@@ -93,28 +96,36 @@ export default function StarConstellation({ found, onFound, onContinue, reduced 
               );
             })}
           </svg>
-          {starLayout.map((spot, index) => (
-            <button
-              key={story.stars.messages[index]}
-              id={`star-${index}`}
-              type="button"
-              className={`star-btn${flags[index] ? " is-found" : ""}${active === index ? " is-active" : ""}`}
-              style={{ top: spot.top, left: spot.left, "--star-size": `${spot.size}px` }}
-              aria-label={story.stars.starLabel(index + 1)}
-              aria-pressed={active === index}
-              aria-describedby={active === index ? "star-message" : undefined}
-              onClick={() => choose(index)}
-              onKeyDown={(event) => onStarKey(event, index)}
-            >
-              <StarIcon variant={spot.variant} />
-            </button>
-          ))}
+          {starLayout.map((spot, index) => {
+            const locked = index !== nextIndex && !flags[index];
+            const next = index === nextIndex;
+            return (
+              <button
+                key={story.stars.messages[index]}
+                id={`star-${index}`}
+                type="button"
+                className={`star-btn${flags[index] ? " is-found" : ""}${active === index ? " is-active" : ""}${next ? " is-next" : ""}${locked ? " is-waiting" : ""}`}
+                style={{ top: spot.top, left: spot.left, "--star-size": `${spot.size}px` }}
+                aria-label={next ? story.stars.orderHint(index + 1, story.stars.guides[index]) : story.stars.starLabel(index + 1)}
+                aria-pressed={active === index}
+                aria-disabled={locked}
+                disabled={locked}
+                aria-describedby={active === index ? "star-message" : undefined}
+                onClick={() => choose(index)}
+                onKeyDown={(event) => onStarKey(event, index)}
+              >
+                <StarIcon variant={spot.variant} />
+                {next ? <span className="star-order">{index + 1}</span> : null}
+              </button>
+            );
+          })}
         </div>
 
         {active == null ? (
           complete ? null : (
             <div className="star-card" id="star-message">
               <p className="star-hint">{story.stars.hint}</p>
+              <p className="star-next">{story.stars.orderHint(nextIndex + 1, story.stars.guides[nextIndex])}</p>
             </div>
           )
         ) : (
@@ -145,6 +156,13 @@ export default function StarConstellation({ found, onFound, onContinue, reduced 
             <p>{story.stars.unlocked}</p>
             <button type="button" className="btn btn-solid" onClick={onContinue}>
               {story.stars.continue}
+            </button>
+          </div>
+        ) : null}
+        {onGalaxy ? (
+          <div className="chapter-nav">
+            <button type="button" className="btn btn-ghost" onClick={onGalaxy}>
+              {story.ui.toGalaxy}
             </button>
           </div>
         ) : null}

@@ -802,6 +802,38 @@ main {
   box-shadow: 0 0 0 1px rgba(214, 183, 122, 0.55);
 }
 
+.star-btn.is-waiting {
+  opacity: 0.38;
+  cursor: default;
+}
+
+.star-btn.is-next .glyph {
+  animation: star-guide 1.8s ease-in-out infinite;
+}
+
+.star-order {
+  position: absolute;
+  top: -0.15rem;
+  inset-inline-end: -0.15rem;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  padding: 0 0.2rem;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #080810;
+  font-family: var(--numeral);
+  font-size: 0.72rem;
+  line-height: 1.15rem;
+  text-align: center;
+}
+
+.star-next {
+  margin: 0.35rem 0 0;
+  font-family: var(--display);
+  font-size: 1.25rem;
+  line-height: 1.7;
+}
+
 .star-card {
   width: min(100%, 36rem);
   min-height: 8.5rem;
@@ -1188,6 +1220,12 @@ h2:focus-visible,
 @keyframes draw-line {
   from { transform: scaleX(0); opacity: 0; }
   to { transform: scaleX(1); opacity: 1; }
+}
+
+@keyframes star-guide {
+  0%,
+  100% { transform: scale(1); filter: drop-shadow(0 0 6px rgba(214, 183, 122, 0.75)); }
+  50% { transform: scale(1.16); filter: drop-shadow(0 0 14px rgba(255, 246, 220, 0.95)); }
 }
 
 @keyframes rise {

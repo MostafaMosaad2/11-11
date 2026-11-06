@@ -55,7 +55,7 @@ function CssGiftBox({ open, reduced, showImage, onImageError }) {
   );
 }
 
-export default function GiftReveal({ endingSeen, onSurprise }) {
+export default function GiftReveal({ endingSeen, onSurprise, onGalaxy }) {
   const reduced = usePrefersReducedMotion();
   const [open, setOpen] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
@@ -143,9 +143,16 @@ export default function GiftReveal({ endingSeen, onSurprise }) {
         {open && ready && allow3d ? <p className="gift-hint">{story.gift.dragHint}</p> : null}
 
         {!open ? (
-          <button type="button" className="btn btn-solid" onClick={() => setOpen(true)}>
-            {story.gift.open}
-          </button>
+          <div className="chapter-nav">
+            <button type="button" className="btn btn-solid" onClick={() => setOpen(true)}>
+              {story.gift.open}
+            </button>
+            {onGalaxy ? (
+              <button type="button" className="btn btn-ghost" onClick={onGalaxy}>
+                {story.ui.toGalaxy}
+              </button>
+            ) : null}
+          </div>
         ) : (
           <div className="gift-copy">
             <p className="prose">{story.gift.text}</p>
@@ -160,6 +167,11 @@ export default function GiftReveal({ endingSeen, onSurprise }) {
                   {reduced ? story.ending.more : story.ui.skip}
                 </button>
               )}
+              {onGalaxy ? (
+                <button type="button" className="btn btn-ghost" onClick={onGalaxy}>
+                  {story.ui.toGalaxy}
+                </button>
+              ) : null}
             </div>
           </div>
         )}

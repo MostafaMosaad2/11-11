@@ -11,7 +11,7 @@ const visuals = {
   "memory-3": <StarsReturn />,
 };
 
-export default function MemoryChapter({ memory, onNext }) {
+export default function MemoryChapter({ memory, onNext, onGalaxy }) {
   if (!memory) return null;
 
   return (
@@ -30,6 +30,11 @@ export default function MemoryChapter({ memory, onNext }) {
         <button type="button" className="btn btn-solid" onClick={onNext}>
           {story.ui.next}
         </button>
+        {onGalaxy ? (
+          <button type="button" className="btn btn-ghost" onClick={onGalaxy}>
+            {story.ui.toGalaxy}
+          </button>
+        ) : null}
       </div>
     </Chapter>
   );
