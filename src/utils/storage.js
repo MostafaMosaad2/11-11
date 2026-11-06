@@ -6,7 +6,7 @@ export const keys = {
   scene: "yara-1111-scene",
   memory: "yara-1111-memory",
   visited: "yara-1111-visited",
-  revisit: "yara-1111-revisit",
+  fromGalaxy: "yara-1111-from-galaxy",
 };
 
 function readStore(kind, key, fallback) {

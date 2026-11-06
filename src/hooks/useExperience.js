@@ -33,12 +33,11 @@ export function useExperience() {
   const [scene, setScene] = useState(readScene);
   const [memoryId, setMemoryId] = useState(readMemory);
   const [visited, setVisited] = useState(readVisited);
-  const [revisit, setRevisit] = useState(() => readSession(keys.revisit, false) === true);
+  const [fromGalaxy, setFromGalaxy] = useState(() => readSession(keys.fromGalaxy, false) === true);
   const [stars, setStars] = useState(readStars);
   const [wish, setWish] = useState(readWish);
   const [wash, setWash] = useState(null);
   const timer = useRef(0);
-  const visitedRef = useRef(visited);
 
   useEffect(() => {
     const done = stars.every(Boolean);
@@ -60,12 +59,8 @@ export function useExperience() {
   }, [visited]);
 
   useEffect(() => {
-    visitedRef.current = visited;
-  }, [visited]);
-
-  useEffect(() => {
-    writeSession(keys.revisit, revisit);
-  }, [revisit]);
+    writeSession(keys.fromGalaxy, fromGalaxy);
+  }, [fromGalaxy]);
 
   useEffect(() => {
     writeStorage(keys.stars, stars);
@@ -73,7 +68,8 @@ export function useExperience() {
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
-  const apply = useCallback((next) => {
+  const apply = useCallback((next, openedFromGalaxy = false) => {
+    setFromGalaxy(openedFromGalaxy === true);
     if (next.memoryId) setMemoryId(next.memoryId);
     setScene(next.scene);
     const markId = next.scene === "memory" ? next.memoryId : next.scene;
@@ -83,30 +79,27 @@ export function useExperience() {
 
   const travel = useCallback(
     (next, options = {}) => {
+      const openedFromGalaxy = options.fromGalaxy === true;
       window.clearTimeout(timer.current);
       if (reduced || options.immediate) {
         setWash(null);
-        apply(next);
+        apply(next, openedFromGalaxy);
         return;
       }
       setWash(options.wash || "gold");
       timer.current = window.setTimeout(() => {
-        apply(next);
+        apply(next, openedFromGalaxy);
         timer.current = window.setTimeout(() => setWash(null), 70);
       }, options.hold ?? 700);
     },
     [apply, reduced],
   );
 
-  const noteGalaxyVisit = useCallback(() => {
-    if (visitedRef.current.includes("ending")) setRevisit(true);
-  }, []);
-
   const restart = useCallback(() => {
     window.clearTimeout(timer.current);
     setWash(null);
     setVisited([]);
-    setRevisit(false);
+    setFromGalaxy(false);
     setMemoryId("memory-1");
     setScene("opening");
   }, []);
@@ -125,8 +118,7 @@ export function useExperience() {
     scene,
     memoryId,
     visited,
-    revisit,
-    noteGalaxyVisit,
+    fromGalaxy,
     stars,
     setStars,
     starsComplete: stars.every(Boolean),

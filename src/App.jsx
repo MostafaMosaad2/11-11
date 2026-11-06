@@ -24,8 +24,7 @@ export default function App() {
     scene,
     memoryId,
     visited,
-    revisit,
-    noteGalaxyVisit,
+    fromGalaxy,
     stars,
     setStars,
     starsComplete,
@@ -103,26 +102,25 @@ export default function App() {
         starsComplete={starsComplete}
         reduced={reduced}
         onOpen={(target) => {
-          noteGalaxyVisit();
-          travel(target, { wash: "soft", hold: 460 });
+          travel(target, { wash: "soft", hold: 460, fromGalaxy: true });
         }}
       />
     );
   } else if (scene === "memory") {
-    content = <MemoryChapter memory={memory} onNext={nextFromMemory} onGalaxy={revisit ? toGalaxy : undefined} />;
+    content = <MemoryChapter memory={memory} onNext={nextFromMemory} onGalaxy={fromGalaxy ? toGalaxy : undefined} />;
   } else if (scene === "video") {
     content = (
       <SurpriseVideoMemory
         reduced={reduced}
         onNext={() => travel({ scene: "letter" }, { wash: "candle", hold: 640 })}
-        onGalaxy={revisit ? toGalaxy : undefined}
+        onGalaxy={fromGalaxy ? toGalaxy : undefined}
       />
     );
   } else if (scene === "letter") {
     content = (
       <HiddenLoveLetter
         onNext={() => travel({ scene: "stars" }, { wash: "soft", hold: 520 })}
-        onGalaxy={revisit ? toGalaxy : undefined}
+        onGalaxy={fromGalaxy ? toGalaxy : undefined}
       />
     );
   } else if (scene === "stars") {
@@ -131,7 +129,7 @@ export default function App() {
         found={stars}
         onFound={discoverStar}
         onContinue={() => travel({ scene: "wish" }, { wash: "soft", hold: 520 })}
-        onGalaxy={revisit ? toGalaxy : undefined}
+        onGalaxy={fromGalaxy ? toGalaxy : undefined}
         reduced={reduced}
       />
     );
@@ -142,7 +140,7 @@ export default function App() {
         onSave={saveWish}
         onDelete={deleteWish}
         onNext={() => travel({ scene: "gift" }, { wash: "gold", hold: 680 })}
-        onGalaxy={revisit ? toGalaxy : undefined}
+        onGalaxy={fromGalaxy ? toGalaxy : undefined}
         reduced={reduced}
       />
     );
@@ -151,7 +149,7 @@ export default function App() {
       <GiftReveal
         endingSeen={endingSeen}
         onSurprise={() => travel({ scene: "ending" }, { wash: "dark", hold: reduced ? 0 : 1000, immediate: reduced })}
-        onGalaxy={revisit ? toGalaxy : undefined}
+        onGalaxy={fromGalaxy ? toGalaxy : undefined}
       />
     );
   } else {
