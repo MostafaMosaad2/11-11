@@ -4,7 +4,8 @@
  * موديل العقد: gift.jewelry.modelUrl = "/models/necklace.glb"
  * لو الاتنين فاضيين، الموقع يرسم علبة مخمل وعقد نجمة.
  * لو في صورة من غير موديل، الصورة هي اللي بتظهر.
- * الصوت اختياري: public/audio/message.mp3 و ambient.mp3 و paper.mp3
+ * موسيقى الخلفية من يوتيوب، بصوت واطي، وتقف لما فيديو العربية يشتغل.
+ * الصوت الاختياري المحلي: public/audio/message.mp3 و paper.mp3
  */
 
 export const story = {
@@ -400,6 +401,7 @@ export const story = {
     progress: "التقدم في الرسالة الصوتية",
   },
   audio: {
+    youtubeId: "pfpH_pNI760",
     mute: "كتم الصوت",
     unmute: "تشغيل الصوت",
     volume: "مستوى الصوت",

@@ -43,6 +43,12 @@ export default function App() {
   const endingSeen = visited.includes("ending");
 
   useEffect(() => {
+    const start = () => armAmbient(readStorage(keys.muted, false) === true, readVolume());
+    window.addEventListener("pointerdown", start, { once: true });
+    return () => window.removeEventListener("pointerdown", start);
+  }, []);
+
+  useEffect(() => {
     const stage = stageRef.current;
     stage?.scrollTo(0, 0);
     if (firstFocus.current) {

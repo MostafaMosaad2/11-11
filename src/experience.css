@@ -69,6 +69,17 @@
   opacity: 0.72;
 }
 
+.ambient-yt {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  width: 200px;
+  height: 112px;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 .audio-dock {
   position: fixed;
   z-index: 6;

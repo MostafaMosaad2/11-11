@@ -3,7 +3,7 @@ export const keys = {
   wish: "yara-1111-wish",
   word: "yara-1111-word",
   muted: "yara-1111-muted",
-  volume: "yara-1111-volume",
+  volume: "yara-1111-volume-soft",
   scene: "yara-1111-scene",
   memory: "yara-1111-memory",
   visited: "yara-1111-visited",
@@ -70,7 +70,7 @@ export function readWord() {
 }
 
 export function readVolume() {
-  const value = Number(readStorage(keys.volume, 0.55));
-  if (!Number.isFinite(value)) return 0.55;
+  const value = Number(readStorage(keys.volume, 0.2));
+  if (!Number.isFinite(value)) return 0.2;
   return Math.min(1, Math.max(0, value));
 }
