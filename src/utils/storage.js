@@ -1,6 +1,7 @@
 export const keys = {
   stars: "yara-1111-stars",
   wish: "yara-1111-wish",
+  word: "yara-1111-word",
   muted: "yara-1111-muted",
   volume: "yara-1111-volume",
   scene: "yara-1111-scene",
@@ -56,6 +57,16 @@ export function readStars() {
 export function readWish() {
   const value = readStorage(keys.wish, null);
   return typeof value === "string" && value.trim() ? value : null;
+}
+
+export function normalizeWord(value) {
+  if (typeof value !== "string") return "";
+  return value.replace(/^\s+|\s+$/g, "").slice(0, 60);
+}
+
+export function readWord() {
+  const value = normalizeWord(readStorage(keys.word, ""));
+  return value || null;
 }
 
 export function readVolume() {

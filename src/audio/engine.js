@@ -18,6 +18,30 @@ function clampVolume(value) {
   return Math.min(1, Math.max(0, number));
 }
 
+let softened = false;
+let baseLevel = null;
+
+function ducked(level) {
+  if (level <= 0.01) return 0;
+  return Math.max(0.03, level * 0.36);
+}
+
+export function softenAmbient() {
+  if (softened) return;
+  softened = true;
+  if (hold || !audio || snapshot.phase !== "playing") return;
+  baseLevel = audio.volume;
+  fadeTo(ducked(baseLevel), 1600);
+}
+
+export function restoreAmbient() {
+  const level = baseLevel;
+  softened = false;
+  baseLevel = null;
+  if (level == null || hold || !audio || snapshot.phase !== "playing") return;
+  fadeTo(level, 1000);
+}
+
 export function hasAmbient() {
   return Boolean(ambientSrc);
 }
@@ -116,7 +140,8 @@ export function playAmbientFromGesture(volume) {
   if (!node || snapshot.phase === "missing") return;
   const level = clampVolume(volume);
   if (snapshot.phase === "playing") {
-    fadeTo(level, 180);
+    if (softened) baseLevel = level;
+    fadeTo(softened ? ducked(level) : level, 180);
     return;
   }
   node.volume = 0;
@@ -124,7 +149,10 @@ export function playAmbientFromGesture(volume) {
     .play()
     .then(() => {
       publish({ phase: "playing" });
-      fadeTo(level, 1500);
+      if (softened) {
+        baseLevel = level;
+        fadeTo(ducked(level), 1500);
+      } else fadeTo(level, 1500);
     })
     .catch(() => publish({ phase: "blocked" }));
 }
@@ -143,7 +171,9 @@ export function pauseAmbient() {
 
 export function setAmbientLevel(volume) {
   if (hold) return;
-  if (audio && snapshot.phase === "playing") audio.volume = clampVolume(volume);
+  const level = clampVolume(volume);
+  if (softened) baseLevel = level;
+  if (audio && snapshot.phase === "playing") audio.volume = softened ? ducked(level) : level;
 }
 
 export function armAmbient(muted, volume) {
