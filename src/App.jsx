@@ -17,7 +17,6 @@ import WishScene from "./components/WishScene";
 import { story } from "./data/story";
 import { useExperience } from "./hooks/useExperience";
 import { keys, readStorage, readVolume } from "./utils/storage";
-import { canUseWebGL } from "./utils/quality";
 
 export default function App() {
   const {
@@ -40,7 +39,6 @@ export default function App() {
   const firstFocus = useRef(true);
   const memory = story.memories.find((item) => item.id === memoryId) ?? story.memories[0];
   const mood = scene === "memory" ? memory.mood : scene;
-  const endingSeen = visited.includes("ending");
 
   useEffect(() => {
     const start = () => armAmbient(readStorage(keys.muted, false) === true, readVolume());
@@ -57,12 +55,6 @@ export default function App() {
     }
     stage?.querySelector("h1, h2")?.focus({ preventScroll: true });
   }, [scene, memoryId]);
-
-  useEffect(() => {
-    if (scene !== "wish" || reduced || !canUseWebGL()) return;
-    if (story.gift.image && !story.gift.jewelry.modelUrl) return;
-    import("./components/gift/JewelryCanvas");
-  }, [reduced, scene]);
 
   const engage = useCallback(() => {
     armAmbient(readStorage(keys.muted, false) === true, readVolume());
@@ -153,7 +145,6 @@ export default function App() {
   } else if (scene === "gift") {
     content = (
       <GiftReveal
-        endingSeen={endingSeen}
         onSurprise={() => travel({ scene: "ending" }, { wash: "dark", hold: reduced ? 0 : 1000, immediate: reduced })}
         onGalaxy={fromGalaxy ? toGalaxy : undefined}
       />

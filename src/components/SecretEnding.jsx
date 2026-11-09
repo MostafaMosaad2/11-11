@@ -204,7 +204,7 @@ export default function SecretEnding({ onRestart, onGalaxy, reduced }) {
   const exitTimer = useRef(0);
   const leaving = useRef(false);
   const [phase, setPhase] = useState(reduced ? "invite" : "arrive");
-  const [shown, setShown] = useState(reduced ? 4 : 0);
+  const [shown, setShown] = useState(reduced ? 2 : 0);
   const [paused, setPaused] = useState(false);
   const [nameOn, setNameOn] = useState(false);
   const [bookOpen, setBookOpen] = useState(false);
@@ -256,19 +256,13 @@ export default function SecretEnding({ onRestart, onGalaxy, reduced }) {
 
     async function play() {
       if (phase === "arrive") {
-        if (!(await wait(700))) return;
+        if (!(await wait(900))) return;
         if (!live()) return;
         setShown(1);
-        if (!(await wait(1500))) return;
-        if (!live()) return;
-        setShown(2);
-        if (!(await wait(1700))) return;
-        if (!live()) return;
-        setShown(3);
         if (!(await wait(1900))) return;
         if (!live()) return;
-        setShown(4);
-        if (!(await wait(700))) return;
+        setShown(2);
+        if (!(await wait(1600))) return;
         if (live()) setPhase("invite");
         return;
       }
@@ -401,7 +395,7 @@ export default function SecretEnding({ onRestart, onGalaxy, reduced }) {
             ? 3
             : stage === "vow" || stage === "return"
               ? copy.vow.length
-              : Math.max(shown, stage === "invite" ? 4 : 0);
+              : Math.max(shown, stage === "invite" ? 2 : 0);
   const scriptOn = nameOn || (reduced && stage === "flower");
   const flatPages = stage === "book" && (showAllPages || reduced);
   const coverOpen = bookOpen || reduced || stage !== "book";
@@ -428,7 +422,7 @@ export default function SecretEnding({ onRestart, onGalaxy, reduced }) {
 
   function skip() {
     if (phase === "arrive") {
-      setShown(4);
+      setShown(2);
       setPhase("invite");
       return;
     }
@@ -714,13 +708,11 @@ export default function SecretEnding({ onRestart, onGalaxy, reduced }) {
         ) : null}
 
         <div className="finale-copy">
-          {invite ? <p className="finale-kicker">{copy.title}</p> : null}
-          <h2 id="ending-title" tabIndex={-1} className={invite && view >= 1 ? "finale-title" : "sr-only"}>
-            {invite && view >= 1 ? copy.wait : copy.title}
+          <h2 id="ending-title" tabIndex={-1} className={invite ? "finale-title" : "sr-only"}>
+            {copy.title}
           </h2>
-          {invite && view >= 2 ? <p className="finale-line">{copy.ask}</p> : null}
-          {invite && view >= 3 ? <p className="finale-line">{copy.remember}</p> : null}
-          {invite && view >= 4 ? <p className="finale-line">{copy.invite}</p> : null}
+          {invite && view >= 1 ? <p className="finale-line">{copy.remember}</p> : null}
+          {invite && view >= 2 ? <p className="finale-line">{copy.invite}</p> : null}
           {stage === "invite" ? (
             <button type="button" className="btn btn-solid" onClick={beginJourney}>
               {copy.watch}

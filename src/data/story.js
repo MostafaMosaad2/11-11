@@ -1,9 +1,7 @@
 /**
  * كل نصوص الموقع موجودة هنا.
- * صورة الهدية: gift.image = "/gift/necklace.jpg"
- * موديل العقد: gift.jewelry.modelUrl = "/models/necklace.glb"
- * لو الاتنين فاضيين، الموقع يرسم علبة مخمل وعقد نجمة.
- * لو في صورة من غير موديل، الصورة هي اللي بتظهر.
+ * هدية الإسورة ثلاث صور في public/images/yara-bracelet/
+ * الصندوق بيتفتح على الصورة الأولى، وبعدين الصورتين التانيين، وبعدين الموقع بيستنى.
  * موسيقى الخلفية من يوتيوب، بصوت واطي، وتقف لما فيديو العربية يشتغل.
  * الصوت الاختياري المحلي: public/audio/message.mp3 و paper.mp3
  */
@@ -281,18 +279,44 @@ export const story = {
     lead: "وفي يوم 11/11...",
     sub: "مكنش ينفع الحكاية تخلص من غير مفاجأة أخيرة.",
     open: "افتحي هديتك 🎁",
-    image: "",
-    imageAlt: "عقد ذهب رفيع بقلادة على شكل نجمة",
-    dragHint: "حركي الهدية بإيدك عشان تبصي عليها",
-    text: "أنا اخترت اليوم ده مخصوص ليكي...\n\nعشان أقولك بطريقتي إن وجودك في حياتي حاجة مميزة.\n\nودي هدية صغيرة...\nعشان تفتكري إن يوم 11/11 كان ليكي إنتِ. ❤️",
-    jewelry: {
-      modelUrl: "",
-      modelScale: 1,
-      modelY: 0.15,
-      metal: "#D6B77A",
-      velvet: "#3C1025",
-      pendant: "star",
-    },
+    continue: "نكمل حكايتنا؟ ❤️",
+    images: [
+      {
+        src: "/images/yara-bracelet/bracelet-gift-box.webp",
+        alt: "إسورة ذهب رفيعة بقلادة شمس، داخل علبة مخمل عنابي",
+      },
+      {
+        src: "/images/yara-bracelet/bracelet-reveal.webp",
+        alt: "إسورة الشمس الذهبية على قماش عنابي",
+      },
+      {
+        src: "/images/yara-bracelet/bracelet-sunshine.webp",
+        alt: "إسورة الشمس الذهبية إلى جوار ورقة صفراء",
+      },
+    ],
+    revealLines: [
+      { text: "You Are My Sunshine ☀️", style: "english" },
+      { text: "عارفة يا يارا...", style: "arabic" },
+      { text: "الإسورة دي شكلها شمس صغيرة...", style: "arabic" },
+      { text: "بس بالنسبة لي، هي بتفكرني بيكي.", style: "arabic", pause: true },
+      { text: "عشان زي ما الشمس بتنور الدنيا...", style: "arabic" },
+      { text: "إنتِ وجودك بينوّر أيامي. ❤️", style: "arabic" },
+    ],
+    sunflowerLines: [
+      { text: "فاكرة دوار الشمس؟ 🌻", style: "arabic" },
+      { text: "الوردة اللي فتحتيها وطلع منها كلام من قلبي...", style: "arabic" },
+      { text: "حبيت المرة دي أهديكي شمس صغيرة...", style: "arabic" },
+      { text: "تفضل معاكي حتى بعد ما تقفلي الحكاية دي.", style: "arabic" },
+      { text: "You Are My Sunshine, Yara. ❤️", style: "english" },
+    ],
+    encoreLines: [
+      { text: "بس استني يا يارا...", style: "arabic", pause: true },
+      { text: "لسه في حاجة ❤️", style: "arabic", pause: true },
+      { text: "كل اللي شفتيه ده كان صور...", style: "arabic", pause: true },
+      { text: "طب إيه رأيك...", style: "arabic" },
+      { text: "تشوفيها على الطبيعة؟ 🥹❤️", style: "finale" },
+      { text: "بصيلي بقى... عندي حاجة ليكي. 🎁❤️", style: "whisper" },
+    ],
   },
   ending: {
     title: "آخر صفحة في حكايتنا",
