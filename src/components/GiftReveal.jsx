@@ -1,72 +1,37 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { restoreAmbient, softenAmbient } from "../audio/engine";
+import BraceletDissolve from "./gift/BraceletDissolve";
 import "./GiftReveal.css";
 import { story } from "../data/story";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 
-const MOTES = [
-  { top: "8%", left: "10%", delay: "0s" },
-  { top: "16%", left: "88%", delay: "1.4s" },
-  { top: "58%", left: "4%", delay: "0.7s" },
-  { top: "74%", left: "90%", delay: "2s" },
-  { top: "42%", left: "93%", delay: "1.1s" },
-  { top: "86%", left: "18%", delay: "1.8s" },
+const BEATS = [
+  { phase: "opening", hold: 1700 },
+  { phase: "reveal", hold: 2100 },
+  { phase: "title", hold: 2800 },
+  { phase: "memory", line: 1, hold: 2500 },
+  { phase: "memory", line: 2, hold: 2700 },
+  { phase: "memory", line: 3, hold: 2500 },
+  { phase: "bridge", line: 3, hold: 1800 },
+  { phase: "named", hold: 2700 },
+  { phase: "return", hold: 1100 },
+  { phase: "dissolve", hold: 4400 },
+  { phase: "empty", hold: 1500 },
+  { phase: "look", line: 1, hold: 1800 },
+  { phase: "look", line: 2, hold: 2400 },
+  { phase: "look", line: 3, hold: 1700 },
+  { phase: "look", line: 4, hold: 2200 },
+  { phase: "look", line: 5, hold: 0 },
 ];
 
-function holdFor(line, { last, night }) {
-  if (last && night) return 0;
-  if (last) return 3200;
-  if (line.pause) return 2700;
-  if (line.style === "english") return 2500;
-  if (line.style === "finale") return 2100;
-  return 1900;
-}
-
-function buildSteps(gift) {
-  const steps = [
-    { phase: "photo", frame: 0, lines: 0, hold: 2600 },
-  ];
-  const push = (lines, phase, frame) => {
-    lines.forEach((line, index) => {
-      const last = index === lines.length - 1;
-      steps.push({
-        phase,
-        frame,
-        lines: index + 1,
-        hold: holdFor(line, { last, night: phase === "night" }),
-      });
-    });
-  };
-  push(gift.revealLines, "photo", 1);
-  push(gift.sunflowerLines, "photo", 2);
-  steps.push({ phase: "night", frame: 2, lines: 0, hold: 1800 });
-  push(gift.encoreLines, "night", null);
-  return steps;
-}
-
-function linesFor(gift, step) {
-  if (!step || step.lines < 1) return [];
-  if (step.phase === "photo" && step.frame === 1) return gift.revealLines.slice(0, step.lines);
-  if (step.phase === "photo" && step.frame === 2) return gift.sunflowerLines.slice(0, step.lines);
-  if (step.phase === "night") return gift.encoreLines.slice(0, step.lines);
-  return [];
-}
-
-function CssGiftBox({ open }) {
-  return (
-    <div className={`box-scene${open ? " is-open" : ""}`}>
-      <div className="box-light" aria-hidden="true" />
-      <div className="box" aria-hidden="true">
-        <div className="box-lid">
-          <div className="lid-face">
-            <span>✦</span>
-          </div>
-        </div>
-        <div className="box-body" />
-      </div>
-    </div>
-  );
+function beatDuration(beat, reduced) {
+  if (!beat?.hold) return 0;
+  if (!reduced) return beat.hold;
+  if (beat.phase === "look" || beat.phase === "memory" || beat.phase === "title" || beat.phase === "named") {
+    return Math.min(beat.hold, 1100);
+  }
+  return Math.min(beat.hold, 520);
 }
 
 function GiftLine({ line }) {
@@ -95,56 +60,103 @@ function GiftLine({ line }) {
   );
 }
 
+function ClosedBox({ open }) {
+  return (
+    <div className={`box-scene${open ? " is-open" : ""}`}>
+      <div className="box-light" aria-hidden="true" />
+      <div className="box" aria-hidden="true">
+        <div className="box-lid">
+          <div className="lid-face" />
+        </div>
+        <div className="box-body">
+          <div className="box-cushion" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function linesFor(gift, phase, count) {
+  if (phase === "title") return [{ text: gift.sunshine, style: "english" }];
+  if (phase === "memory" || phase === "bridge") {
+    return gift.memory.slice(0, count).map((text) => ({ text, style: "arabic" }));
+  }
+  if (phase === "named") return [{ text: gift.yara, style: "english" }];
+  if (phase === "look") return gift.look.slice(0, count);
+  return [];
+}
+
+function frameIndex(phase) {
+  if (phase === "memory") return 1;
+  if (phase === "bridge" || phase === "named") return 2;
+  if (phase === "reveal" || phase === "title" || phase === "return" || phase === "dissolve") return 0;
+  return -1;
+}
+
 export default function GiftReveal({ onSurprise, onGalaxy }) {
   const reduced = usePrefersReducedMotion();
   const gift = story.gift;
-  const steps = useMemo(() => buildSteps(gift), [gift]);
-  const [step, setStep] = useState(-1);
+  const [beat, setBeat] = useState(-1);
+  const [canvasOn, setCanvasOn] = useState(false);
+  const [dissolveFallback, setDissolveFallback] = useState(false);
   const leaving = useRef(false);
-  const current = step >= 0 ? steps[step] : null;
-  const phase = current?.phase ?? "closed";
-  const lines = linesFor(gift, current);
-  const open = step >= 0;
-  const photo = phase === "photo" || phase === "night";
-  const settled = phase === "night" && (current?.lines ?? 0) > 0;
-  const finished = step === steps.length - 1;
+  const current = beat >= 0 ? BEATS[beat] : null;
+  const phase = current?.phase ?? "invite";
+  const lineCount = current?.line ?? 0;
+  const lines = linesFor(gift, phase, lineCount);
+  const frame = frameIndex(phase);
+  const showCanvas = (phase === "dissolve" || phase === "empty") && !reduced && !dissolveFallback;
+  const showPhoto = frame >= 0 && !(showCanvas && canvasOn);
+  const showPlate = (reduced || dissolveFallback) && (phase === "dissolve" || phase === "empty");
+  const awaiting = phase === "look" && lineCount >= gift.look.length;
 
   useEffect(() => {
-    gift.images.forEach((image) => {
-      const preload = new Image();
-      preload.src = image.src;
+    const sources = [
+      ...gift.images.map((image) => image.src),
+      "/images/yara-bracelet/bracelet-box-empty.webp",
+      "/images/yara-bracelet/bracelet-mask.png",
+    ];
+    sources.forEach((src) => {
+      const image = new Image();
+      image.src = src;
     });
   }, [gift.images]);
 
   useEffect(() => {
-    if (step < 0 || step >= steps.length - 1) return undefined;
-    const wait = reduced ? Math.min(steps[step].hold, 720) : steps[step].hold;
-    const timer = window.setTimeout(() => setStep((value) => value + 1), wait);
+    if (beat < 0) return undefined;
+    const hold = beatDuration(BEATS[beat], reduced);
+    if (!hold) return undefined;
+    const timer = window.setTimeout(() => setBeat((value) => value + 1), hold);
     return () => window.clearTimeout(timer);
-  }, [reduced, step, steps]);
+  }, [beat, reduced]);
 
   useEffect(() => {
-    if (phase === "night") softenAmbient();
+    if (phase === "look") softenAmbient();
   }, [phase]);
 
   useEffect(() => {
     const root = document.getElementById("stage-root");
     if (!root) return undefined;
-    if (phase === "night") {
+    if (phase === "look" || phase === "invite" || phase === "opening") {
       root.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
       return undefined;
     }
     const last = root.querySelector(".bracelet-copy .bracelet-line:last-child");
     if (!last) return undefined;
-    const overflow = last.getBoundingClientRect().bottom - (root.getBoundingClientRect().bottom - 18);
+    const overflow = last.getBoundingClientRect().bottom - (root.getBoundingClientRect().bottom - 24);
     if (overflow > 8) {
       root.scrollTo({ top: root.scrollTop + overflow, behavior: reduced ? "auto" : "smooth" });
     }
     return undefined;
-  }, [lines.length, phase, reduced]);
+  }, [lineCount, phase, reduced]);
+
+  function openGift() {
+    if (beat >= 0) return;
+    setBeat(0);
+  }
 
   function continueStory() {
-    if (leaving.current) return;
+    if (!awaiting || leaving.current) return;
     leaving.current = true;
     restoreAmbient();
     onSurprise();
@@ -152,69 +164,74 @@ export default function GiftReveal({ onSurprise, onGalaxy }) {
 
   return (
     <section
-      className={`scene gift${reduced ? " is-reduced" : ""}${phase === "night" ? " is-holding" : ""}${settled ? " is-settled" : ""}`}
+      className={`scene gift is-${phase}${reduced ? " is-reduced" : ""}${lines.length ? " has-copy" : ""}`}
       id="gift"
       data-phase={phase}
-      data-frame={current?.frame ?? ""}
-      data-lines={lines.length}
       aria-labelledby="gift-title"
     >
       <div className="gift-veil" aria-hidden="true" />
+      <div className="gift-spot" aria-hidden="true" />
       <motion.div
         className="gift-inner"
-        initial={{ opacity: 0, y: 24 }}
+        initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: reduced ? 0.01 : 0.8, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: reduced ? 0.01 : 1.1, ease: [0.22, 1, 0.36, 1] }}
       >
-        <p className={open ? "sr-only" : "eyebrow"}>{gift.kicker}</p>
-        <h2 id="gift-title" className={open ? "sr-only" : undefined} tabIndex={-1}>
+        <h2 id="gift-title" className="sr-only" tabIndex={-1}>
           {gift.title}
         </h2>
-        {open ? null : (
-          <>
-            <p className="gift-lead">{gift.lead}</p>
-            <p className="gift-sub">{gift.sub}</p>
-          </>
-        )}
 
-        <div className={`bracelet-stage${photo ? " is-photo" : ""}${lines.length ? " has-lines" : ""}`}>
-          <div className="bracelet-box">
-            <CssGiftBox open={open} />
+        {phase === "invite" ? (
+          <div className="gift-invite">
+            {gift.invite.map((text) => (
+              <p key={text}>{text}</p>
+            ))}
           </div>
-          <div className="bracelet-plate">
-            {!reduced && photo && phase !== "night" ? (
-              <div className="bracelet-motes" aria-hidden="true">
-                {MOTES.map((mote) => (
-                  <span key={`${mote.top}-${mote.left}`} style={{ top: mote.top, left: mote.left, animationDelay: mote.delay }} />
-                ))}
-              </div>
+        ) : null}
+
+        <div className={`bracelet-stage${phase === "memory" || phase === "bridge" ? " is-zoom" : ""}`}>
+          <div className="bracelet-box">
+            <ClosedBox open={phase !== "invite"} />
+          </div>
+          <div className="bracelet-frame">
+            {gift.images.map((image, index) => (
+              <img
+                key={image.src}
+                src={image.src}
+                alt={showPhoto && frame === index ? image.alt : ""}
+                width={1086}
+                height={1448}
+                draggable="false"
+                className={`${showPhoto && frame === index ? "is-on" : ""}${showPlate && index === 0 ? " is-leaving" : ""}`}
+                aria-hidden={showPhoto && frame === index ? undefined : true}
+              />
+            ))}
+            <img
+              src="/images/yara-bracelet/bracelet-box-empty.webp"
+              alt=""
+              width={1086}
+              height={1448}
+              draggable="false"
+              className={`bracelet-plate-img${showPlate && phase === "empty" ? " is-on" : ""}${showPlate && phase === "dissolve" ? " is-arriving" : ""}`}
+              aria-hidden="true"
+            />
+            {showCanvas ? (
+              <BraceletDissolve active onReady={() => setCanvasOn(true)} onFallback={() => setDissolveFallback(true)} />
             ) : null}
-            <div className="bracelet-frame">
-              {gift.images.map((image, index) => (
-                <img
-                  key={image.src}
-                  src={image.src}
-                  alt={current?.frame === index ? image.alt : ""}
-                  width={1086}
-                  height={1448}
-                  draggable="false"
-                  className={current?.frame === index ? "is-on" : ""}
-                  aria-hidden={current?.frame === index ? undefined : true}
-                />
-              ))}
-            </div>
+            {phase === "title" && !reduced ? <span className="bracelet-glint" aria-hidden="true" /> : null}
+            {showPlate && phase === "dissolve" ? <span className="bracelet-bloom" aria-hidden="true" /> : null}
           </div>
         </div>
 
         <div className="bracelet-copy" aria-live="polite">
-          {lines.map((line, index) => (
-            <GiftLine key={`${phase}-${index}`} line={line} />
+          {lines.map((line) => (
+            <GiftLine key={line.text} line={line} />
           ))}
         </div>
 
-        {!open ? (
-          <div className="chapter-nav">
-            <button type="button" className="btn btn-solid" onClick={() => setStep(0)}>
+        {phase === "invite" ? (
+          <div className="chapter-nav gift-actions">
+            <button type="button" className="btn btn-solid" onClick={openGift}>
               {gift.open}
             </button>
             {onGalaxy ? (
@@ -225,7 +242,7 @@ export default function GiftReveal({ onSurprise, onGalaxy }) {
           </div>
         ) : null}
 
-        {finished ? (
+        {awaiting ? (
           <div className="chapter-nav">
             <button type="button" className="btn btn-ghost bracelet-next" onClick={continueStory}>
               {gift.continue}

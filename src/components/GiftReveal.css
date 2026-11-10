@@ -1,174 +1,256 @@
+.gift {
+  min-height: 100dvh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
+  padding-inline: 1.15rem;
+}
+
 .gift-veil {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: 0;
-  background: radial-gradient(ellipse 74% 58% at 50% 40%, rgba(92, 24, 48, 0.97), rgba(32, 8, 18, 0.98) 46%, #07060c 100%);
-  transition: opacity 1.7s ease;
+  opacity: 1;
+  background:
+    radial-gradient(ellipse 68% 52% at 50% 42%, rgba(48, 12, 24, 0.18), rgba(5, 4, 8, 0.9) 58%, #050308 100%);
+  transition: background 1.6s ease;
 }
 
-.gift.is-holding .gift-veil {
-  opacity: 1;
+.gift.is-look .gift-veil {
+  background: #050308;
+}
+
+.gift-spot {
+  position: fixed;
+  left: 50%;
+  top: 42%;
+  z-index: 0;
+  width: min(92vw, 34rem);
+  height: min(70vh, 36rem);
+  transform: translate(-50%, -46%);
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(214, 170, 96, 0.2), rgba(120, 64, 32, 0.08) 42%, transparent 70%);
+  animation: gift-spot 2.6s ease both;
+}
+
+.gift.is-opening .gift-spot,
+.gift.is-reveal .gift-spot,
+.gift.is-title .gift-spot,
+.gift.is-return .gift-spot,
+.gift.is-dissolve .gift-spot,
+.gift.is-empty .gift-spot {
+  background: radial-gradient(ellipse at center, rgba(226, 184, 112, 0.32), rgba(120, 48, 28, 0.1) 46%, transparent 72%);
+}
+
+.gift.is-look .gift-spot {
+  opacity: 0;
+}
+
+.gift-inner {
+  width: min(100%, 40rem);
+}
+
+.gift-invite {
+  width: min(100%, 34rem);
+  margin-bottom: 0.35rem;
+}
+
+.gift-invite p {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(1.32rem, 4.8vw, 1.82rem);
+  line-height: 1.85;
+  color: #f6efe4;
+  animation: bracelet-rise 1.05s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.gift-invite p + p {
+  margin-top: 0.35rem;
+  color: rgba(246, 239, 228, 0.84);
+  animation-delay: 0.55s;
+}
+
+.gift-actions {
+  animation: bracelet-rise 1s cubic-bezier(0.22, 1, 0.36, 1) 0.95s both;
 }
 
 .bracelet-stage {
   position: relative;
-  width: min(100%, 26rem);
+  width: min(100%, 28rem);
   margin-inline: auto;
-  justify-self: center;
   display: grid;
   justify-items: center;
   align-items: center;
-  transition: opacity 1.6s ease;
 }
 
 .bracelet-box,
-.bracelet-plate {
+.bracelet-frame {
   grid-area: 1 / 1;
-}
-
-.bracelet-box {
-  transition: opacity 0.45s ease;
 }
 
 .bracelet-box {
   width: 100%;
   display: flex;
   justify-content: center;
+  transition: opacity 0.4s ease;
 }
 
-.bracelet-box .box-scene {
-  width: 280px;
-  height: 236px;
-  margin: 0.2rem auto 0;
-  perspective: 980px;
-}
-
-.bracelet-box .box {
-  position: relative;
-  left: auto;
-  right: auto;
-  bottom: auto;
-  width: 236px;
-  height: 156px;
-  margin-inline: auto;
-}
-
-.bracelet-box .box-lid {
-  transform-origin: center bottom;
-  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.bracelet-box .box-scene.is-open .box-lid {
-  transform: rotateX(78deg);
-}
-
-.bracelet-box .box-light {
-  width: 150px;
-  height: 78px;
-  bottom: 28px;
-  background: radial-gradient(circle, rgba(255, 236, 196, 0.42), rgba(214, 183, 122, 0) 72%);
-}
-
-.bracelet-box .box-scene.is-open .box-light {
-  opacity: 0.85;
-}
-
-.bracelet-plate {
-  width: min(100%, 26rem);
-  margin-inline: auto;
-  justify-self: center;
-  display: grid;
-  place-items: center;
-  height: 0;
-  overflow: hidden;
+.gift:not(.is-invite):not(.is-opening) .bracelet-box {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
 }
 
-.bracelet-stage.is-photo .bracelet-box {
-  position: absolute;
-  left: 50%;
-  top: 42%;
-  transform: translate(-50%, -50%);
-  opacity: 0;
-  pointer-events: none;
+.bracelet-box .box-scene {
+  width: min(72vw, 250px);
+  height: 230px;
+  margin: 0.4rem auto;
+  perspective: 980px;
 }
 
-.bracelet-stage.is-photo .bracelet-plate {
-  height: auto;
-  overflow: visible;
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 0.55s ease;
+.bracelet-box .box-scene::after {
+  width: 150px;
+  opacity: 0.45;
 }
 
-.bracelet-stage.is-photo .bracelet-frame {
-  animation: bracelet-emerge 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+.bracelet-box .box {
+  width: min(64vw, 220px);
+  height: 148px;
+  bottom: 34px;
 }
 
-.gift.is-holding .bracelet-stage {
-  opacity: 0;
+.bracelet-box .box-body {
+  height: 108px;
+  border-radius: 4px 4px 16px 16px;
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(255, 220, 180, 0.08), transparent 46%),
+    linear-gradient(180deg, #6e1c38 0%, #4a1024 48%, #2a0814 100%);
+  border: 1px solid rgba(226, 196, 140, 0.72);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 236, 200, 0.16),
+    inset 0 -22px 28px rgba(0, 0, 0, 0.38),
+    0 18px 36px rgba(0, 0, 0, 0.45);
 }
 
-.gift.is-settled {
-  min-height: 100dvh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  justify-content: safe center;
-}
-
-.gift.is-settled .bracelet-stage {
+.bracelet-box .box-body::after {
   display: none;
 }
 
-.gift.is-settled .gift-inner {
-  justify-content: center;
+.bracelet-box .box-cushion {
+  display: block;
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 10px;
+  bottom: 12px;
+  border-radius: 2px 2px 10px 10px;
+  background:
+    radial-gradient(ellipse at 50% 42%, rgba(120, 28, 48, 0.2), transparent 62%),
+    linear-gradient(180deg, #5a1630, #3a0d1e);
+  box-shadow: inset 0 8px 16px rgba(0, 0, 0, 0.28);
 }
 
-.bracelet-plate::before {
+.bracelet-box .box-lid {
+  height: 58px;
+  transform-origin: center bottom;
+  transition: transform 1.55s cubic-bezier(0.55, 0.02, 0.18, 1);
+}
+
+.bracelet-box .box-scene.is-open .box-lid {
+  transform: rotateX(76deg);
+}
+
+.bracelet-box .lid-face {
+  border-radius: 16px 16px 4px 4px;
+  background:
+    linear-gradient(180deg, rgba(255, 228, 186, 0.16), transparent 28%),
+    linear-gradient(180deg, #7a2340, #4c1226 58%, #320c18);
+  border: 1px solid rgba(226, 196, 140, 0.78);
+  box-shadow: inset 0 0 0 1px rgba(255, 236, 200, 0.12);
+}
+
+.bracelet-box .lid-face::before {
   content: "";
-  position: absolute;
-  left: 50%;
-  top: 44%;
-  z-index: 0;
-  width: 78%;
-  height: 48%;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(255, 236, 196, 0.2), rgba(214, 183, 122, 0) 70%);
-  pointer-events: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(232, 204, 150, 0.72);
+  box-shadow: inset 0 0 0 5px rgba(74, 16, 32, 0.35);
+}
+
+.bracelet-box .box-light {
+  width: 180px;
+  height: 120px;
+  bottom: 18px;
+  background: radial-gradient(circle, rgba(255, 232, 190, 0.34), rgba(214, 170, 96, 0) 70%);
+  opacity: 0.45;
+}
+
+.bracelet-box .box-scene.is-open .box-light {
+  opacity: 0.9;
 }
 
 .bracelet-frame {
   position: relative;
-  z-index: 1;
-  width: min(88vw, 24rem, calc(52dvh * 1086 / 1448));
-  margin-inline: auto;
+  width: min(86vw, 24rem, calc(50dvh * 1086 / 1448));
   aspect-ratio: 1086 / 1448;
-  border-radius: 1.15rem;
+  opacity: 0;
+  visibility: hidden;
+  background: transparent;
+  filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.42));
+  -webkit-mask-image: radial-gradient(ellipse 94% 90% at 50% 48%, #000 46%, transparent 86%);
+  mask-image: radial-gradient(ellipse 94% 90% at 50% 48%, #000 46%, transparent 86%);
+  transition: opacity 0.9s ease 0.2s, visibility 0.9s ease 0.2s, width 0.8s ease;
+}
+
+.gift.is-invite .bracelet-frame,
+.gift.is-opening .bracelet-frame {
+  position: absolute;
+  width: min(86vw, 24rem, calc(50dvh * 1086 / 1448));
+  pointer-events: none;
+}
+
+.gift.is-reveal .bracelet-frame,
+.gift.is-title .bracelet-frame,
+.gift.is-memory .bracelet-frame,
+.gift.is-bridge .bracelet-frame,
+.gift.is-named .bracelet-frame,
+.gift.is-return .bracelet-frame,
+.gift.is-dissolve .bracelet-frame,
+.gift.is-empty .bracelet-frame {
+  opacity: 1;
+  visibility: visible;
+}
+
+.gift.has-copy .bracelet-frame {
+  width: min(78vw, 18.5rem, calc(34dvh * 1086 / 1448));
+}
+
+.gift.is-look .bracelet-stage {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
   overflow: hidden;
-  background: #2a0a16;
-  box-shadow:
-    0 0 0 1px rgba(214, 183, 122, 0.32),
-    0 22px 50px rgba(0, 0, 0, 0.42);
+  pointer-events: none;
 }
 
-.bracelet-stage.has-lines .bracelet-frame {
-  width: min(84vw, 19rem, calc(36dvh * 1086 / 1448));
-}
-
-.bracelet-frame img {
+.bracelet-frame img,
+.bracelet-canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+}
+
+.bracelet-frame img {
   object-fit: contain;
   object-position: center;
   opacity: 0;
-  transition: opacity 1.2s ease;
+  transition: opacity 1.15s ease, transform 8s cubic-bezier(0.22, 1, 0.36, 1);
   user-select: none;
   -webkit-user-drag: none;
 }
@@ -177,31 +259,59 @@
   opacity: 1;
 }
 
-.bracelet-motes {
-  position: absolute;
-  inset: -8% -10%;
+.bracelet-frame img.is-leaving {
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+.bracelet-plate-img.is-arriving,
+.bracelet-plate-img.is-on {
+  opacity: 1;
+}
+
+.bracelet-stage.is-zoom .bracelet-frame img.is-on {
+  transform: scale(1.055);
+}
+
+.bracelet-canvas {
   z-index: 2;
+}
+
+.bracelet-glint,
+.bracelet-bloom {
+  position: absolute;
+  z-index: 3;
   pointer-events: none;
 }
 
-.bracelet-motes span {
-  position: absolute;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: rgba(255, 244, 220, 0.9);
-  box-shadow: 0 0 6px rgba(214, 183, 122, 0.4);
-  animation: bracelet-mote 7.5s ease-in-out infinite;
+.bracelet-glint {
+  left: 34%;
+  top: 47.5%;
+  width: 32%;
+  height: 11%;
+  background: linear-gradient(100deg, transparent 20%, rgba(255, 248, 230, 0.72) 50%, transparent 80%);
+  mix-blend-mode: screen;
+  filter: blur(0.4px);
+  animation: bracelet-glint 1.55s ease forwards;
+}
+
+.bracelet-bloom {
+  left: 50%;
+  top: 52%;
+  width: 52%;
+  height: 30%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 240, 210, 0.72), rgba(214, 168, 96, 0.18) 46%, transparent 74%);
+  animation: bracelet-bloom 1.15s ease both;
 }
 
 .bracelet-copy {
   width: min(100%, 36rem);
-  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.55rem;
-  margin-top: 0.2rem;
+  gap: 0.7rem;
+  margin-top: 0.85rem;
 }
 
 .bracelet-line {
@@ -219,9 +329,9 @@
   font-family: "Playfair Display", Palatino, "Times New Roman", serif;
   font-style: italic;
   font-weight: 500;
-  font-size: clamp(1.9rem, 6.5vw, 3.2rem);
-  line-height: 1.25;
-  color: #f3e2bc;
+  font-size: clamp(1.85rem, 6.4vw, 3.15rem);
+  line-height: 1.2;
+  letter-spacing: 0.01em;
 }
 
 .bracelet-line.is-stacked {
@@ -236,7 +346,7 @@
 }
 
 .bracelet-english {
-  background: linear-gradient(180deg, #fff8e8 0%, #e8d4a6 46%, #b8924e 100%);
+  background: linear-gradient(180deg, #fff8e8 0%, #e7d2a4 48%, #b8924e 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -250,46 +360,45 @@
 .bracelet-line.is-arabic,
 .bracelet-line.is-whisper {
   font-family: var(--display);
-  color: var(--ivory);
-  line-height: 1.7;
+  color: #f6efe4;
+  line-height: 1.75;
+  text-align: center;
 }
 
 .bracelet-line.is-arabic {
-  font-size: clamp(1.28rem, 3.7vw, 1.72rem);
+  font-size: clamp(1.22rem, 4vw, 1.62rem);
 }
 
 .bracelet-line.is-whisper {
-  font-size: clamp(1.2rem, 3.5vw, 1.58rem);
-  margin-top: 0.15rem;
+  font-size: clamp(1.16rem, 3.8vw, 1.5rem);
+  color: rgba(246, 239, 228, 0.88);
 }
 
 .bracelet-line.is-finale {
   font-family: "Aref Ruqaa", "Amiri", serif;
-  font-size: clamp(2.15rem, 7.8vw, 3.6rem);
+  font-size: clamp(2.05rem, 7.6vw, 3.45rem);
   line-height: 1.55;
   color: #f8edd4;
-  margin-top: 0.45rem;
-  text-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  margin-top: 0.35rem;
 }
 
 .bracelet-next {
-  animation: bracelet-rise 1s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
+  min-height: 48px;
+  animation: bracelet-rise 1s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
 }
 
-.gift.is-settled .bracelet-copy {
+.gift.is-look .bracelet-copy {
   margin-top: 0;
-  gap: 0.95rem;
+  gap: 0.9rem;
 }
 
-@keyframes bracelet-emerge {
-  from {
-    opacity: 0;
-    transform: translateY(18px) scale(0.94);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+.gift.is-look .gift-inner {
+  justify-content: center;
+}
+
+@keyframes gift-spot {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes bracelet-rise {
@@ -303,43 +412,56 @@
   }
 }
 
-@keyframes bracelet-mote {
-  0%,
-  100% {
-    opacity: 0.12;
-    transform: translateY(0);
+@keyframes bracelet-glint {
+  0% {
+    opacity: 0;
+    transform: translateX(-18%) skewX(-16deg);
   }
-  50% {
-    opacity: 0.48;
-    transform: translateY(-7px);
+  18% { opacity: 0.9; }
+  100% {
+    opacity: 0;
+    transform: translateX(92%) skewX(-16deg);
   }
 }
 
+@keyframes bracelet-bloom {
+  from { opacity: 0; }
+  35% { opacity: 1; }
+  to { opacity: 0.2; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .bracelet-stage,
-  .bracelet-box,
-  .bracelet-plate,
+  .gift-spot,
+  .gift-invite p,
+  .gift-actions,
+  .bracelet-frame,
   .bracelet-frame img,
-  .gift-veil,
+  .bracelet-box,
+  .bracelet-box .box-lid,
+  .bracelet-box .box-light,
   .bracelet-line,
   .bracelet-next,
-  .gift.is-reduced .box-lid,
-  .gift.is-reduced .box-light {
+  .bracelet-glint,
+  .bracelet-bloom,
+  .gift-veil {
     animation: none;
     transition: none;
   }
 }
 
-.gift.is-reduced .bracelet-stage,
-.gift.is-reduced .bracelet-box,
-.gift.is-reduced .bracelet-plate,
+.gift.is-reduced .gift-spot,
+.gift.is-reduced .gift-invite p,
+.gift.is-reduced .gift-actions,
+.gift.is-reduced .bracelet-frame,
 .gift.is-reduced .bracelet-frame img,
-.gift.is-reduced .gift-veil,
+.gift.is-reduced .bracelet-box,
+.gift.is-reduced .box-lid,
+.gift.is-reduced .box-light,
 .gift.is-reduced .bracelet-line,
 .gift.is-reduced .bracelet-next,
-.gift.is-reduced .bracelet-frame,
-.gift.is-reduced .box-lid,
-.gift.is-reduced .box-light {
+.gift.is-reduced .bracelet-glint,
+.gift.is-reduced .bracelet-bloom,
+.gift.is-reduced .gift-veil {
   animation: none;
   transition: none;
 }
