@@ -779,6 +779,7 @@ main {
   transform: translate(-50%, -50%);
   display: grid;
   place-items: center;
+  transition: opacity 0.75s ease, filter 0.75s ease;
 }
 
 .glyph {
@@ -850,15 +851,36 @@ main {
   color: var(--gold);
 }
 
+.star-heading {
+  margin-bottom: 0.85rem;
+  line-height: 1.35;
+}
+
 .star-kicker {
+  display: block;
+  font-family: var(--body);
   font-size: 0.85rem;
-  margin-bottom: 0.4rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.star-title {
+  display: block;
+  font-family: var(--display);
+  font-size: clamp(1.45rem, 3.2vw, 1.9rem);
+  font-weight: 700;
+  color: var(--ivory);
 }
 
 .star-copy {
   font-family: var(--display);
-  font-size: 1.35rem;
-  line-height: 1.9;
+  font-size: clamp(1.15rem, 2.5vw, 1.4rem);
+  line-height: 2;
+}
+
+.star-dialog {
+  max-height: min(78dvh, 32rem);
+  overflow: auto;
 }
 
 .unlock {
@@ -1271,6 +1293,18 @@ h2:focus-visible,
 
   .constellation {
     height: 600px;
+  }
+}
+
+@media (max-width: 700px) {
+  .star-copy {
+    font-size: 1.18rem;
+    line-height: 2.05;
+  }
+
+  .star-dialog {
+    width: min(100%, 36rem);
+    padding-inline: 1rem;
   }
 }
 
