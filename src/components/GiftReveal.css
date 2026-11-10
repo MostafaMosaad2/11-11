@@ -40,6 +40,7 @@
 .gift.is-reveal .gift-spot,
 .gift.is-title .gift-spot,
 .gift.is-return .gift-spot,
+.gift.is-place .gift-spot,
 .gift.is-dissolve .gift-spot,
 .gift.is-empty .gift-spot {
   background: radial-gradient(ellipse at center, rgba(226, 184, 112, 0.32), rgba(120, 48, 28, 0.1) 46%, transparent 72%);
@@ -219,6 +220,7 @@
 .gift.is-bridge .bracelet-frame,
 .gift.is-named .bracelet-frame,
 .gift.is-return .bracelet-frame,
+.gift.is-place .bracelet-frame,
 .gift.is-dissolve .bracelet-frame,
 .gift.is-empty .bracelet-frame {
   opacity: 1;

@@ -89,7 +89,6 @@ export default function WishScene({ wish, onSave, onDelete, onNext, onGalaxy, re
         </h2>
         <DateMark reduced={reduced} size="wish" />
         <p className="prose is-center wish-text">{story.wish.text}</p>
-        <p className="wish-aside">{story.wish.aside}</p>
         <p className="wish-turn">{story.wish.turn}</p>
 
         {wish && !editing ? (

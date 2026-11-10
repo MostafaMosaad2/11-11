@@ -9,26 +9,25 @@ import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 const BEATS = [
   { phase: "opening", hold: 1700 },
   { phase: "reveal", hold: 2100 },
-  { phase: "title", hold: 2800 },
   { phase: "memory", line: 1, hold: 2500 },
   { phase: "memory", line: 2, hold: 2700 },
   { phase: "memory", line: 3, hold: 2500 },
   { phase: "bridge", line: 3, hold: 1800 },
   { phase: "named", hold: 2700 },
   { phase: "return", hold: 1100 },
+  { phase: "place", line: 1, hold: 1800 },
+  { phase: "place", line: 2, hold: 2400 },
+  { phase: "place", line: 3, hold: 1700 },
   { phase: "dissolve", hold: 4400 },
   { phase: "empty", hold: 1500 },
-  { phase: "look", line: 1, hold: 1800 },
-  { phase: "look", line: 2, hold: 2400 },
-  { phase: "look", line: 3, hold: 1700 },
-  { phase: "look", line: 4, hold: 2200 },
-  { phase: "look", line: 5, hold: 0 },
+  { phase: "look", line: 1, hold: 2200 },
+  { phase: "look", line: 2, hold: 0 },
 ];
 
 function beatDuration(beat, reduced) {
   if (!beat?.hold) return 0;
   if (!reduced) return beat.hold;
-  if (beat.phase === "look" || beat.phase === "memory" || beat.phase === "title" || beat.phase === "named") {
+  if (beat.phase === "look" || beat.phase === "place" || beat.phase === "memory" || beat.phase === "named") {
     return Math.min(beat.hold, 1100);
   }
   return Math.min(beat.hold, 520);
@@ -77,11 +76,11 @@ function ClosedBox({ open }) {
 }
 
 function linesFor(gift, phase, count) {
-  if (phase === "title") return [{ text: gift.sunshine, style: "english" }];
   if (phase === "memory" || phase === "bridge") {
     return gift.memory.slice(0, count).map((text) => ({ text, style: "arabic" }));
   }
   if (phase === "named") return [{ text: gift.yara, style: "english" }];
+  if (phase === "place") return gift.place.slice(0, count);
   if (phase === "look") return gift.look.slice(0, count);
   return [];
 }
@@ -89,7 +88,7 @@ function linesFor(gift, phase, count) {
 function frameIndex(phase) {
   if (phase === "memory") return 1;
   if (phase === "bridge" || phase === "named") return 2;
-  if (phase === "reveal" || phase === "title" || phase === "return" || phase === "dissolve") return 0;
+  if (phase === "reveal" || phase === "return" || phase === "place" || phase === "dissolve") return 0;
   return -1;
 }
 
@@ -218,7 +217,6 @@ export default function GiftReveal({ onSurprise, onGalaxy }) {
             {showCanvas ? (
               <BraceletDissolve active onReady={() => setCanvasOn(true)} onFallback={() => setDissolveFallback(true)} />
             ) : null}
-            {phase === "title" && !reduced ? <span className="bracelet-glint" aria-hidden="true" /> : null}
             {showPlate && phase === "dissolve" ? <span className="bracelet-bloom" aria-hidden="true" /> : null}
           </div>
         </div>

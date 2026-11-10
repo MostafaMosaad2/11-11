@@ -1,7 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { playPaper, restoreAmbient, softenAmbient } from "../audio/engine";
 import { story } from "../data/story";
-import { keys, normalizeWord, readWord, writeStorage } from "../utils/storage";
 import "./SecretEnding.css";
 
 const THREAD =
@@ -197,9 +196,6 @@ function StoryBook({ open, turning, page, turningFrom, allPages, blank, center, 
 
 export default function SecretEnding({ onRestart, onGalaxy, reduced }) {
   const copy = story.ending;
-  const inputId = useId();
-  const privacyId = useId();
-  const errorId = useId();
   const run = useRef(0);
   const exitTimer = useRef(0);
   const leaving = useRef(false);
@@ -213,11 +209,6 @@ export default function SecretEnding({ onRestart, onGalaxy, reduced }) {
   const [showAllPages, setShowAllPages] = useState(false);
   const [mark, setMark] = useState("gather");
   const [flowerOk, setFlowerOk] = useState(true);
-  const [savedWord, setSavedWord] = useState(readWord);
-  const [draft, setDraft] = useState(() => readWord() ?? "");
-  const [editing, setEditing] = useState(() => !readWord());
-  const [warning, setWarning] = useState(false);
-  const [error, setError] = useState("");
   const [starWord, setStarWord] = useState("");
 
   useEffect(
@@ -285,12 +276,6 @@ export default function SecretEnding({ onRestart, onGalaxy, reduced }) {
       }
 
       if (phase === "flower") {
-        const before = [1800, 1900, 1700];
-        for (let index = 1; index <= 3; index += 1) {
-          if (!live()) return;
-          setShown(index);
-          if (!(await wait(before[index - 1]))) return;
-        }
         if (!live()) return;
         setNameOn(true);
         if (!(await wait(2500))) return;
@@ -329,14 +314,11 @@ export default function SecretEnding({ onRestart, onGalaxy, reduced }) {
 
       if (phase === "blank") {
         setShown(1);
-        if (!(await wait(1500))) return;
+        if (!(await wait(2400))) return;
         if (!live()) return;
-        setShown(2);
-        if (!(await wait(1800))) return;
-        if (!live()) return;
-        setShown(3);
-        if (!(await wait(1700))) return;
-        if (live()) setShown(4);
+        setStarWord("");
+        setShown(0);
+        setPhase("rise");
         return;
       }
 
@@ -468,40 +450,6 @@ export default function SecretEnding({ onRestart, onGalaxy, reduced }) {
     setPhase(next);
   }
 
-  function startRise(word) {
-    setStarWord(word);
-    setPaused(false);
-    setShown(reduced ? 3 : 0);
-    setPhase("rise");
-  }
-
-  function submitWord(event) {
-    event.preventDefault();
-    const clean = normalizeWord(draft);
-    if (!clean) {
-      setError(copy.empty);
-      return;
-    }
-    const stored = writeStorage(keys.word, clean);
-    setSavedWord(clean);
-    setDraft(clean);
-    setWarning(!stored);
-    setError("");
-    setEditing(false);
-    startRise(clean);
-  }
-
-  function keepWord() {
-    if (!savedWord) return;
-    setWarning(false);
-    startRise(savedWord);
-  }
-
-  function skipWord() {
-    setWarning(false);
-    startRise("");
-  }
-
   function goOpening() {
     if (leaving.current) return;
     leaving.current = true;
@@ -511,18 +459,10 @@ export default function SecretEnding({ onRestart, onGalaxy, reduced }) {
     exitTimer.current = window.setTimeout(() => onRestart(), reduced ? 80 : 1500);
   }
 
-  function focusField(event) {
-    const node = event.currentTarget;
-    window.setTimeout(() => {
-      node.scrollIntoView({ block: "center", behavior: reduced ? "auto" : "smooth" });
-    }, 280);
-  }
-
   const invite = stage === "arrive" || stage === "invite";
   const showSky = invite || stage === "memories" || stage === "sky";
-  const formReady = stage === "blank" && (reduced || paused || view >= 4);
   const vowDone = (stage === "vow" && view >= copy.vow.length) || stage === "return";
-  const cinematic = ["memories", "flower", "book", "rise", "sky"].includes(stage);
+  const cinematic = ["memories", "flower", "book", "blank", "rise", "sky"].includes(stage);
   const showSkip =
     !reduced &&
     !paused &&
@@ -617,86 +557,6 @@ export default function SecretEnding({ onRestart, onGalaxy, reduced }) {
                     {line}
                   </p>
                 ))}
-                {formReady ? (
-                  <>
-                    {savedWord && !editing ? (
-                      <div className="finale-saved">
-                        <p className="finale-saved-word">{savedWord}</p>
-                        <p className="finale-privacy">{copy.savedNote}</p>
-                        <div className="finale-form-actions">
-                          <button type="button" className="btn btn-solid" onClick={keepWord}>
-                            {copy.keep}
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn-ghost"
-                            onClick={() => {
-                              setDraft(savedWord);
-                              setEditing(true);
-                              setError("");
-                            }}
-                          >
-                            {copy.edit}
-                          </button>
-                          <button type="button" className="btn-text" onClick={skipWord}>
-                            {copy.skipWrite}
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <form className="finale-form" onSubmit={submitWord} noValidate>
-                        <label className="finale-ask" htmlFor={inputId}>
-                          {copy.askWord}
-                        </label>
-                        <input
-                          id={inputId}
-                          className="finale-input"
-                          dir="rtl"
-                          lang="ar"
-                          type="text"
-                          inputMode="text"
-                          enterKeyHint="done"
-                          maxLength={60}
-                          autoComplete="off"
-                          autoCorrect="off"
-                          placeholder={copy.placeholder}
-                          value={draft}
-                          aria-invalid={error ? true : undefined}
-                          aria-describedby={error ? `${privacyId} ${errorId}` : privacyId}
-                          onFocus={focusField}
-                          onChange={(event) => {
-                            setDraft(event.target.value.slice(0, 60));
-                            if (error) setError("");
-                          }}
-                        />
-                        <p className="finale-count" aria-hidden="true">
-                          {draft.length}/60
-                        </p>
-                        {error ? (
-                          <p className="finale-error" id={errorId} role="alert">
-                            {error}
-                          </p>
-                        ) : null}
-                        <div className="finale-form-actions">
-                          <button type="submit" className="btn btn-solid">
-                            {savedWord ? copy.replace : copy.save}
-                          </button>
-                          {savedWord ? (
-                            <button type="button" className="btn btn-ghost" onClick={() => setEditing(false)}>
-                              {copy.cancel}
-                            </button>
-                          ) : null}
-                          <button type="button" className="btn-text" onClick={skipWord}>
-                            {copy.skipWrite}
-                          </button>
-                        </div>
-                      </form>
-                    )}
-                    <p className="finale-privacy" id={privacyId}>
-                      {copy.privacy}
-                    </p>
-                  </>
-                ) : null}
               </div>
             ) : (
               <div className={`finale-rise${view >= 1 ? " is-lit" : ""}`}>
@@ -746,11 +606,8 @@ export default function SecretEnding({ onRestart, onGalaxy, reduced }) {
             </div>
           ) : null}
 
-          {stage === "flower" && view > 0 ? (
+          {stage === "flower" && (scriptOn || view >= 4) ? (
             <div className="finale-flower-copy" aria-live="polite">
-              {copy.flower.slice(0, Math.min(view, 3)).map((line) => (
-                <p key={line}>{line}</p>
-              ))}
               {scriptOn ? <p className={`finale-script${reduced ? "" : " is-written"}`}>{copy.name}</p> : null}
               {view >= 4
                 ? copy.flowerAfter.slice(0, view - 3).map((line) => (
@@ -766,7 +623,6 @@ export default function SecretEnding({ onRestart, onGalaxy, reduced }) {
             </p>
           ) : null}
           {stage === "rise" && view >= 3 && !starWord ? <p className="sr-only">{copy.starQuiet}</p> : null}
-          {warning && (stage === "rise" || stage === "sky") ? <p className="finale-error">{copy.persistFail}</p> : null}
           {stage === "sky" && skyMark === "gather" && starWord ? <p className="finale-star-line">{copy.starLine}</p> : null}
 
           {(stage === "vow" || stage === "return") && view > 0 ? (
